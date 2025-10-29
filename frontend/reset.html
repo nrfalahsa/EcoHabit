@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoHabit - Reset Password</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1 class="auth-title">EcoHabit</h1>
+            <p class="auth-subtitle">Reset Password Baru</p>
+            
+            <form id="resetForm">
+                <div class="form-group">
+                    <label for="password" class="form-label">Password Baru</label>
+                    <input type="password" id="password" class="form-input" placeholder="Minimal 6 karakter" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="passwordConfirm" class="form-label">Konfirmasi Password Baru</label>
+                    <input type="password" id="passwordConfirm" class="form-input" placeholder="Ulangi password baru" required>
+                </div>
+                
+                <button type="submit" class="btn">Reset Password</button>
+            </form>
+            
+            <div class="auth-links text-center">
+                <a href="login.html" class="auth-link">Kembali ke Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/reset.js"></script>
+</body>
+</html>

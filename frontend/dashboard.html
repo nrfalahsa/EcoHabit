@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoHabit - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">EcoHabit</div>
+                <div class="user-info">
+                    <span>Halo, <span id="userName"></span>!</span>
+                    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <div class="container">
+            <!-- Alert Container -->
+            <div class="alert-container mb-4"></div>
+
+            <!-- Grid Layout -->
+            <div class="grid grid-cols-3 gap-6">
+                <!-- Level & Badge -->
+                <div class="card">
+                    <h2 class="card-title">Level & Badge</h2>
+                    <div class="level-badge">
+                        <div class="badge-icon" id="levelBadge">🌱</div>
+                        <div class="badge-info">
+                            <h3 id="levelText">🌱 Green Starter</h3>
+                            <p id="pointsText">0 Total Poin</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aktivitas Hijau -->
+                <div class="card col-span-2">
+                    <h2 class="card-title">Aktivitas Hijau Hari Ini</h2>
+                    <div id="activitiesList">
+                        <!-- Activities will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Quote & Challenge -->
+                <div class="card col-span-3">
+                    <div class="quote-section">
+                        <div class="quote-text" id="quoteText">
+                            "Loading quote..."
+                        </div>
+                        <div class="quote-author" id="quoteAuthor">
+                            - EcoHabit
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistik Mingguan -->
+                <div class="card col-span-3">
+                    <h2 class="card-title">Statistik Mingguan</h2>
+                    <div class="chart-container">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
