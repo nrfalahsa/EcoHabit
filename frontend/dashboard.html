@@ -13,7 +13,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">EcoHabit</div>
-                <div class_name="user-info">
+                <div class="user-info">
                     <span>Halo, <span id="userName">Pengguna</span>!</span>
                     <button id="logoutBtn" class="btn btn-secondary btn-sm">Logout</button>
                 </div>
@@ -30,6 +30,18 @@
                         <div class="card skeleton">
                             <div class="skeleton-title"></div>
                             <div class="skeleton-badge"></div>
+                        </div>
+                        <div class="card skeleton">
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-text"></div>
+                            <div class="skeleton-text"></div>
+                            <div class="skeleton-text"></div>
+                        </div>
+                        <div class="card skeleton">
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-text"></div>
+                            <div class="skeleton-text"></div>
+                            <div class="skeleton-text"></div>
                         </div>
                         <div class="card skeleton">
                             <div class="skeleton-title"></div>
@@ -59,6 +71,7 @@
             </div>
 
             <div id="dashboardContent" class="dashboard-grid hidden">
+                
                 <aside class="sidebar">
                     <div class="card">
                         <h2 class="card-title">Level & Badge</h2>
@@ -68,6 +81,41 @@
                                 <h3 id="levelText">🌱 Green Starter</h3>
                                 <p id="pointsText">0 Total Poin</p>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2 class="card-title">Total Dampak Kamu</h2>
+                        <div class="impact-stats">
+                            <div class="impact-item">
+                                <span class="impact-icon">💨</span>
+                                <div class="impact-text">
+                                    <span class="impact-value" id="totalCo2">0 kg</span>
+                                    <span class="impact-label">CO2 Ditekan</span>
+                                </div>
+                            </div>
+                            <div class="impact-item">
+                                <span class="impact-icon">💧</span>
+                                <div class="impact-text">
+                                    <span class="impact-value" id="totalWater">0 L</span>
+                                    <span class="impact-label">Air Dihemat</span>
+                                </div>
+                            </div>
+                            <div class="impact-item">
+                                <span class="impact-icon">♻️</span>
+                                <div class="impact-text">
+                                    <span class="impact-value" id="totalPlastic">0 gr</span>
+                                    <span class="impact-label">Plastik Dikurangi</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2 class="card-title">🏆 Papan Peringkat</h2>
+                        <div class="leaderboard">
+                            <ol id="leaderboardList">
+                                </ol>
                         </div>
                     </div>
                     

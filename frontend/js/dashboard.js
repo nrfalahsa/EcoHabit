@@ -1,18 +1,9 @@
-// Data aktivitas hijau
-const ecoActivities = [
-  { name: 'Bawa tumbler minum', points: 10 },
-  { name: 'Matikan lampu saat tidak digunakan', points: 5 },
-  { name: 'Kurangi penggunaan AC', points: 15 },
-  { name: 'Gunakan transportasi umum', points: 20 },
-  { name: 'Tanam pohon', points: 30 },
-  { name: 'Kurangi sampah plastik', points: 15 },
-  { name: 'Kompos sampah organik', points: 25 },
-  { name: 'Gunakan produk daur ulang', points: 10 }
-];
+// (Data aktivitas tidak lagi di hardcode di sini)
 
 let userData = null;
-let progressData = null;
-let myChartInstance = null; // <-- PERBAIKAN: Variabel baru untuk menyimpan chart
+let progressData = null; // Data progress 7 hari
+let allActivities = []; // Daftar semua aktivitas dari backend
+let myChartInstance = null; 
 
 // Element selectors
 const loadingState = document.getElementById('loadingState');
@@ -21,60 +12,61 @@ const dashboardContent = document.getElementById('dashboardContent');
 const logoutModal = document.getElementById('logoutModal');
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Cek autentikasi
-  if (!checkAuth()) {
-    return;
-  }
+  if (!checkAuth()) return;
   
-  // Load user data
   userData = JSON.parse(localStorage.getItem('ecohabit_user'));
-  
-  // Setup event listeners
   setupEventListeners();
-  
-  // Load dashboard data
   loadDashboardData();
 });
 
 function setupEventListeners() {
-  // Logout button
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    showModal(logoutModal);
-  });
+  // Event listener untuk modal (aman, tidak akan error jika elemen tidak ada)
+  document.getElementById('logoutBtn')?.addEventListener('click', () => showModal(logoutModal));
+  document.getElementById('closeModalBtn')?.addEventListener('click', () => hideModal(logoutModal));
+  document.getElementById('cancelLogoutBtn')?.addEventListener('click', () => hideModal(logoutModal));
+  document.getElementById('confirmLogoutBtn')?.addEventListener('click', () => logout());
   
-  // Modal close buttons
-  document.getElementById('closeModalBtn').addEventListener('click', () => {
-    hideModal(logoutModal);
-  });
-  document.getElementById('cancelLogoutBtn').addEventListener('click', () => {
-    hideModal(logoutModal);
-  });
-  
-  // Confirm logout
-  document.getElementById('confirmLogoutBtn').addEventListener('click', () => {
-    logout();
-  });
-  
-  // User info
-  document.getElementById('userName').textContent = userData.name;
+  // PERBAIKAN: Cek apakah elemen 'userName' ada
+  const userNameEl = document.getElementById('userName');
+  if(userData && userNameEl) {
+    userNameEl.textContent = userData.name;
+  }
 }
 
 async function loadDashboardData() {
   showLoading(true);
   try {
-    // Load progress data
-    const progressResponse = await authFetch('/progress');
+    // 1. Ambil semua data yang diperlukan secara bersamaan
+    // (Jika salah satu gagal, semua akan masuk ke catch block)
+    const [progressResponse, activitiesResponse, savingsResponse, leaderboardResponse, quoteResponse] = await Promise.all([
+      authFetch('/progress'),        // Data progress 7 hari & poin
+      authFetch('/activities'),      // Daftar aktivitas
+      authFetch('/progress/savings'),  // Total dampak
+      authFetch('/users/leaderboard'),
+      fetch(`${API_BASE_URL}/quotes/random`) // Quote
+    ]);
+
+    // 2. Simpan data
     progressData = progressResponse;
+    allActivities = activitiesResponse;
     
-    // Update UI
+    // 3. Render semua komponen
     updateLevelBadge();
     renderActivities();
     renderChart();
+    renderImpactStats(savingsResponse); // <-- Ini yang mungkin menyebabkan error
+    renderLeaderboard(leaderboardResponse);
     
-    // Load random quote
-    loadRandomQuote();
+    // Cek quote
+    if (quoteResponse.ok) {
+      const quote = await quoteResponse.json();
+      renderQuote(quote.text, quote.author);
+    } else {
+      // Jika quote gagal, jangan hentikan semua, beri default
+      console.error('Gagal memuat quote');
+      renderQuote("Setiap tindakan kecil untuk lingkungan membawa perubahan besar untuk masa depan.", "EcoHabit");
+    }
     
-    // Show content
     showLoading(false);
     
   } catch (error) {
@@ -83,59 +75,66 @@ async function loadDashboardData() {
   }
 }
 
+
+
 function showLoading(isLoading) {
   if (isLoading) {
-    loadingState.classList.remove('hidden');
-    dashboardContent.classList.add('hidden');
-    errorState.classList.add('hidden');
+    loadingState?.classList.remove('hidden');
+    dashboardContent?.classList.add('hidden');
+    errorState?.classList.add('hidden');
   } else {
-    loadingState.classList.add('hidden');
-    dashboardContent.classList.remove('hidden');
+    loadingState?.classList.add('hidden');
+    dashboardContent?.classList.remove('hidden');
   }
 }
 
 function showErrorState(message) {
-  loadingState.classList.add('hidden');
-  dashboardContent.classList.add('hidden');
-  errorState.classList.remove('hidden');
-  document.getElementById('errorMessageText').textContent = `Gagal memuat data: ${message}. Silakan coba muat ulang halaman.`;
+  loadingState?.classList.add('hidden');
+  dashboardContent?.classList.add('hidden');
+  
+  const errorStateEl = document.getElementById('errorState');
+  const errorMessageTextEl = document.getElementById('errorMessageText');
+
+  if (errorStateEl) errorStateEl.classList.remove('hidden');
+  // Tampilkan pesan error yang diterima
+  if (errorMessageTextEl) errorMessageTextEl.textContent = `Gagal memuat data: ${message}. Silakan coba muat ulang halaman.`;
 }
 
 function updateLevelBadge() {
-  document.getElementById('levelBadge').textContent = getBadgeIcon(progressData.totalPoints);
-  document.getElementById('levelText').textContent = progressData.level;
-  document.getElementById('pointsText').textContent = `${progressData.totalPoints} Total Poin`;
+  // PERBAIKAN: Cek setiap elemen sebelum diisi
+  const levelBadgeEl = document.getElementById('levelBadge');
+  const levelTextEl = document.getElementById('levelText');
+  const pointsTextEl = document.getElementById('pointsText');
+  
+  if(levelBadgeEl) levelBadgeEl.textContent = getBadgeIcon(progressData.totalPoints);
+  if(levelTextEl) levelTextEl.textContent = progressData.level;
+  if(pointsTextEl) pointsTextEl.textContent = `${progressData.totalPoints} Total Poin`;
 }
 
 function getBadgeIcon(points) {
-  if (points <= 50) return '🌱'; // Green Starter
-  if (points <= 150) return '🌿'; // Eco Explorer
-  if (points <= 300) return '🌎'; // Planet Hero
-  return '🔥'; // Climate Guardian
+  if (points <= 50) return '🌱';
+  if (points <= 150) return '🌿';
+  if (points <= 300) return '🌎';
+  return '🔥';
 }
 
 function renderActivities() {
   const activitiesContainer = document.getElementById('activitiesList');
+  if (!activitiesContainer) return; // Jika kontainer tidak ada, hentikan fungsi
+
   activitiesContainer.innerHTML = '';
   
-  // Cek aktivitas yang sudah dikerjakan hari ini
-  const today = new Date().toISOString().split('T')[0];
-  const todayProgress = progressData.progress.find(p => 
-    p.date.split('T')[0] === today
-  );
+  const completedToday = progressData.todayProgress ? 
+    progressData.todayProgress.map(a => a.name) : [];
   
-  const completedToday = todayProgress ? 
-    todayProgress.activities.map(a => a.name) : [];
-  
-  ecoActivities.forEach(activity => {
+  allActivities.forEach(activity => {
     const isCompleted = completedToday.includes(activity.name);
     
     const activityElement = document.createElement('div');
     activityElement.className = `activity-item ${isCompleted ? 'completed' : ''}`;
     activityElement.innerHTML = `
       <div class="activity-checkbox ${isCompleted ? 'checked' : ''}" 
-           data-activity="${activity.name}" 
-           data-points="${activity.points}">
+           data-activity-name="${activity.name}">
         ${isCompleted ? '✔' : ''} 
       </div>
       <div class="activity-info">
@@ -144,52 +143,51 @@ function renderActivities() {
       </div>
     `;
     
-    // Add click event
     const checkbox = activityElement.querySelector('.activity-checkbox');
-    if (!isCompleted) {
-      checkbox.addEventListener('click', () => completeActivity(activity.name, activity.points, checkbox));
+    if (checkbox && !isCompleted) {
+      checkbox.addEventListener('click', () => completeActivity(activity.name, checkbox));
     }
     
     activitiesContainer.appendChild(activityElement);
   });
 }
 
-async function completeActivity(activityName, points, checkboxElement) {
-  // Optimistic UI update
+async function completeActivity(activityName, checkboxElement) {
   checkboxElement.classList.add('checked', 'loading');
   checkboxElement.innerHTML = '...';
   
   try {
     const response = await authFetch('/progress/update', {
       method: 'POST',
-      body: JSON.stringify({
-        activityName,
-        points
-      })
+      body: JSON.stringify({ activityName })
     });
     
-    // Update local data
+    // Perbarui data lokal
     progressData.totalPoints = response.totalPoints;
     progressData.level = response.level;
-
-    // Update progressData.progress untuk hari ini
-    const today = new Date().toISOString().split('T')[0];
-    let todayProgress = progressData.progress.find(p => 
-      p.date.split('T')[0] === today
-    );
-    if (!todayProgress) {
-      // Jika progress hari ini belum ada di data lokal, buatkan
-      todayProgress = { date: new Date().toISOString(), activities: [], dailyPoints: 0 };
-      progressData.progress.push(todayProgress);
-    }
-    // Tambahkan aktivitas ke data lokal
-    todayProgress.activities.push({ name: activityName, points: points, completed: true });
-    todayProgress.dailyPoints += points;
     
-    // Update UI
+    if (progressData.todayProgress) {
+        progressData.todayProgress.push({ name: activityName, points: response.points });
+    } else {
+        progressData.todayProgress = [{ name: activityName, points: response.points }];
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    let todayChartData = progressData.chartData.find(d => d.date === todayStr);
+    if(todayChartData) {
+      todayChartData.points += response.points;
+    } else {
+      progressData.chartData.push({ date: todayStr, points: response.points });
+    }
+
+    // Muat ulang total dampak
+    const savingsResponse = await authFetch('/progress/savings');
+    renderImpactStats(savingsResponse);
+
+    // Render ulang UI
     updateLevelBadge();
-    renderActivities(); // Render ulang semua aktivitas
-    renderChart(); // Render ulang chart dengan data baru
+    renderActivities();
+    renderChart();
     
     showAlert(response.message, 'success');
     
@@ -202,10 +200,51 @@ async function completeActivity(activityName, points, checkboxElement) {
   }
 }
 
+// PERBAIKAN: Cek elemen sebelum mengisi. Ini adalah sumber error Anda.
+function renderImpactStats(data) {
+  const totalCo2El = document.getElementById('totalCo2');
+  const totalWaterEl = document.getElementById('totalWater');
+  const totalPlasticEl = document.getElementById('totalPlastic');
+
+  if(totalCo2El) totalCo2El.textContent = `${data.total_co2_kg || 0} kg`;
+  if(totalWaterEl) totalWaterEl.textContent = `${data.total_water_liter || 0} L`;
+  if(totalPlasticEl) totalPlasticEl.textContent = `${data.total_plastic_gram || 0} gr`;
+}
+
+function renderLeaderboard(users) {
+  const listEl = document.getElementById('leaderboardList');
+  if (!listEl) return; // Cek keamanan
+
+  listEl.innerHTML = ''; // Kosongkan list
+
+  if (!users || users.length === 0) {
+    listEl.innerHTML = '<p>Belum ada data peringkat.</p>';
+    return;
+  }
+
+  users.forEach((user, index) => {
+    const rank = index + 1;
+    const li = document.createElement('li');
+    li.className = 'leaderboard-item';
+    
+    li.innerHTML = `
+      <span class="leaderboard-rank">${rank}</span>
+      <div class="leaderboard-info">
+        <span class="leaderboard-name">${user.name}</span>
+        <span class="leaderboard-points">${user.totalPoints} Poin (${user.level})</span>
+      </div>
+    `;
+    
+    listEl.appendChild(li);
+  });
+}
+
 function renderChart() {
-  const ctx = document.getElementById('progressChart').getContext('2d');
+  const ctxEl = document.getElementById('progressChart');
+  if (!ctxEl) return; // Jika canvas tidak ada, jangan render chart
+
+  const ctx = ctxEl.getContext('2d');
   
-  // Siapkan data untuk 7 hari terakhir
   const last7Days = [];
   for (let i = 6; i >= 0; i--) {
     const date = new Date();
@@ -213,19 +252,16 @@ function renderChart() {
     last7Days.push(date.toISOString().split('T')[0]);
   }
   
-  const chartData = last7Days.map(date => {
-    // Cari data poin harian dari progressData.progress
-    const dayData = progressData.progress.find(d => d.date.split('T')[0] === date);
-    return dayData ? dayData.dailyPoints : 0;
+  const chartDataPoints = last7Days.map(date => {
+    const dayData = progressData.chartData.find(d => d.date === date);
+    return dayData ? dayData.points : 0;
   });
   
-  // Hancurkan chart lama jika ada
-  if (myChartInstance) { // <-- PERBAIKAN: Cek variabel baru
-    myChartInstance.destroy(); // <-- PERBAIKAN: Hancurkan variabel baru
+  if (myChartInstance) {
+    myChartInstance.destroy();
   }
   
-  // Buat chart baru
-  myChartInstance = new Chart(ctx, { // <-- PERBAIKAN: Simpan ke variabel baru
+  myChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
       labels: last7Days.map(date => {
@@ -234,7 +270,7 @@ function renderChart() {
       }),
       datasets: [{
         label: 'Poin Harian',
-        data: chartData,
+        data: chartDataPoints,
         borderColor: '#4CAF50',
         backgroundColor: 'rgba(76, 175, 80, 0.1)',
         borderWidth: 2,
@@ -249,48 +285,31 @@ function renderChart() {
       scales: {
         y: {
           beginAtZero: true,
-          ticks: {
-            stepSize: 10
-          }
         }
       },
       plugins: {
         legend: {
           display: false
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              return `Poin: ${context.parsed.y}`;
-            }
-          }
         }
       }
     }
   });
 }
 
-async function loadRandomQuote() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/quotes/random`);
-    if (!response.ok) throw new Error('Failed to fetch quote');
-    const quote = await response.json();
-    
-    document.getElementById('quoteText').textContent = `"${quote.text}"`;
-    document.getElementById('quoteAuthor').textContent = `- ${quote.author}`;
-    
-  } catch (error) {
-    console.error('Error loading quote:', error);
-    document.getElementById('quoteText').textContent = '"Setiap tindakan kecil untuk lingkungan membawa perubahan besar untuk masa depan."';
-    document.getElementById('quoteAuthor').textContent = '- EcoHabit';
-  }
+// PERBAIKAN: Cek elemen sebelum mengisi
+function renderQuote(text, author) {
+  const quoteTextEl = document.getElementById('quoteText');
+  const quoteAuthorEl = document.getElementById('quoteAuthor');
+
+  if(quoteTextEl) quoteTextEl.textContent = `"${text}"`;
+  if(quoteAuthorEl) quoteAuthorEl.textContent = `- ${author}`;
 }
 
 // Modal Helper Functions
 function showModal(modalElement) {
-  modalElement.classList.remove('hidden');
+  if (modalElement) modalElement.classList.remove('hidden');
 }
 
 function hideModal(modalElement) {
-  modalElement.classList.add('hidden');
+  if (modalElement) modalElement.classList.add('hidden');
 }
