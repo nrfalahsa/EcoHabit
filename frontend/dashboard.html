@@ -9,69 +9,114 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- Header -->
     <header class="dashboard-header">
         <div class="container">
             <div class="header-content">
                 <div class="logo">EcoHabit</div>
-                <div class="user-info">
-                    <span>Halo, <span id="userName"></span>!</span>
-                    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+                <div class_name="user-info">
+                    <span>Halo, <span id="userName">Pengguna</span>!</span>
+                    <button id="logoutBtn" class="btn btn-secondary btn-sm">Logout</button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="dashboard-main">
         <div class="container">
-            <!-- Alert Container -->
-            <div class="alert-container mb-4"></div>
 
-            <!-- Grid Layout -->
-            <div class="grid grid-cols-3 gap-6">
-                <!-- Level & Badge -->
-                <div class="card">
-                    <h2 class="card-title">Level & Badge</h2>
-                    <div class="level-badge">
-                        <div class="badge-icon" id="levelBadge">🌱</div>
-                        <div class="badge-info">
-                            <h3 id="levelText">🌱 Green Starter</h3>
-                            <p id="pointsText">0 Total Poin</p>
+            <div id="loadingState">
+                <div class="dashboard-grid">
+                    <aside class="sidebar">
+                        <div class="card skeleton">
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-badge"></div>
+                        </div>
+                        <div class="card skeleton">
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-text"></div>
+                            <div class="skeleton-text short"></div>
+                        </div>
+                    </aside>
+                    <section class="main-content">
+                        <div class="card skeleton">
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-text"></div>
+                            <div class="skeleton-text"></div>
+                            <div class="skeleton-text"></div>
+                        </div>
+                        <div class="card skeleton">
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-chart"></div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <div id="errorState" class="card error-card hidden">
+                <h2 class="card-title">Terjadi Kesalahan</h2>
+                <p id="errorMessageText">Gagal memuat data dashboard. Silakan coba muat ulang halaman.</p>
+                <button onclick="window.location.reload()" class="btn">Muat Ulang</button>
+            </div>
+
+            <div id="dashboardContent" class="dashboard-grid hidden">
+                <aside class="sidebar">
+                    <div class="card">
+                        <h2 class="card-title">Level & Badge</h2>
+                        <div class="level-badge">
+                            <div class="badge-icon" id="levelBadge">🌱</div>
+                            <div class="badge-info">
+                                <h3 id="levelText">🌱 Green Starter</h3>
+                                <p id="pointsText">0 Total Poin</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Aktivitas Hijau -->
-                <div class="card col-span-2">
-                    <h2 class="card-title">Aktivitas Hijau Hari Ini</h2>
-                    <div id="activitiesList">
-                        <!-- Activities will be populated by JavaScript -->
-                    </div>
-                </div>
-
-                <!-- Quote & Challenge -->
-                <div class="card col-span-3">
-                    <div class="quote-section">
-                        <div class="quote-text" id="quoteText">
-                            "Loading quote..."
-                        </div>
-                        <div class="quote-author" id="quoteAuthor">
-                            - EcoHabit
+                    
+                    <div class="card">
+                        <h2 class="card-title">Motivasi Hijau</h2>
+                        <div class="quote-section">
+                            <div class="quote-text" id="quoteText">
+                                "Memuat..."
+                            </div>
+                            <div class="quote-author" id="quoteAuthor">
+                                - EcoHabit
+                            </div>
                         </div>
                     </div>
-                </div>
+                </aside>
 
-                <!-- Statistik Mingguan -->
-                <div class="card col-span-3">
-                    <h2 class="card-title">Statistik Mingguan</h2>
-                    <div class="chart-container">
-                        <canvas id="progressChart"></canvas>
+                <section class="main-content">
+                    <div class="card">
+                        <h2 class="card-title">Aktivitas Hijau Hari Ini</h2>
+                        <div id="activitiesList">
+                            </div>
                     </div>
-                </div>
+
+                    <div class="card">
+                        <h2 class="card-title">Statistik Poin Mingguan</h2>
+                        <div class="chart-container">
+                            <canvas id="progressChart"></canvas>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
     </main>
+
+    <div id="logoutModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Konfirmasi Logout</h3>
+                <button id="closeModalBtn" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Apakah Anda yakin ingin keluar dari akun Anda?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelLogoutBtn" class="btn btn-secondary">Batal</button>
+                <button id="confirmLogoutBtn" class="btn btn-danger">Yakin, Logout</button>
+            </div>
+        </div>
+    </div>
 
     <script src="js/auth.js"></script>
     <script src="js/dashboard.js"></script>

@@ -6,18 +6,21 @@ const API_BASE_URL = '/api';
 // Cek jika user sudah login
 function checkAuth() {
   const token = localStorage.getItem('ecohabit_token');
-  const currentPath = window.location.pathname;
+  const currentPath = window.location.pathname.split('/').pop(); // Handle path lebih baik
+  
+  // Halaman auth
+  const authPages = ['login.html', 'register.html', 'forgot.html', 'reset.html', ''];
   
   // Jika sudah login dan mencoba akses halaman auth, redirect ke dashboard
-  if (token && ['/', '/login', '/register', '/forgot'].includes(currentPath)) {
-    window.location.href = '/dashboard';
-    return;
+  if (token && authPages.includes(currentPath)) {
+    window.location.href = 'dashboard.html'; // Eksplisit
+    return false; // Hentikan eksekusi
   }
   
   // Jika belum login dan mencoba akses dashboard, redirect ke login
-  if (!token && currentPath === '/dashboard') {
-    window.location.href = '/login';
-    return;
+  if (!token && currentPath === 'dashboard.html') {
+    window.location.href = 'login.html'; // Eksplisit
+    return false; // Hentikan eksekusi
   }
   
   return token;
@@ -37,7 +40,7 @@ function saveToken(token) {
 function logout() {
   localStorage.removeItem('ecohabit_token');
   localStorage.removeItem('ecohabit_user');
-  window.location.href = '/login';
+  window.location.href = 'login.html'; // Eksplisit
 }
 
 // Dapatkan header dengan token untuk API requests
@@ -50,12 +53,21 @@ function getAuthHeaders() {
 }
 
 // Handle API errors
-function handleApiError(error) {
-  console.error('API Error:', error);
-  if (error.status === 401) {
-    logout();
+async function handleApiError(response) {
+  const error = await response.json();
+  const errorMessage = error.message || 'Terjadi kesalahan jaringan';
+  
+  console.error('API Error:', response.status, errorMessage);
+  
+  if (response.status === 401) {
+    // Jika token tidak valid, logout paksa
+    showAlert('Sesi Anda telah berakhir. Silakan login kembali.', 'error');
+    setTimeout(() => {
+      logout();
+    }, 2000);
   }
-  throw error;
+  
+  throw new Error(errorMessage);
 }
 
 // Make authenticated API request
@@ -69,36 +81,70 @@ async function authFetch(url, options = {}) {
     });
     
     if (!response.ok) {
-      const error = await response.json();
-      throw { status: response.status, message: error.message };
+      await handleApiError(response);
     }
     
-    return await response.json();
+    // Handle no-content responses (misal: DELETE)
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    }
+    return true; // Sukses tanpa JSON body
+
   } catch (error) {
-    handleApiError(error);
+    console.error('Fetch Error:', error);
+    // Rethrow error agar bisa ditangkap oleh pemanggil fungsi
+    throw error;
   }
 }
 
-// Show alert message
+/**
+ * Menampilkan toast notification.
+ * @param {string} message - Pesan yang ingin ditampilkan.
+ * @param {string} type - 'success' atau 'error'.
+ */
 function showAlert(message, type = 'success') {
-  const alertDiv = document.createElement('div');
-  alertDiv.className = `alert alert-${type} fade-in`;
-  alertDiv.textContent = message;
+  // Cari container, jika tidak ada, buat
+  let toastContainer = document.getElementById('toast-container');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.id = 'toast-container';
+    document.body.appendChild(toastContainer);
+  }
   
-  // Tambah alert ke container atau body
-  const container = document.querySelector('.alert-container') || document.body;
-  container.insertBefore(alertDiv, container.firstChild);
+  // Buat elemen toast
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
   
-  // Hapus alert setelah 5 detik
+  // Tambahkan ke container
+  toastContainer.appendChild(toast);
+  
+  // Tampilkan toast
   setTimeout(() => {
-    alertDiv.remove();
-  }, 5000);
+    toast.classList.add('show');
+  }, 100); // Sedikit delay untuk memicu transisi CSS
+  
+  // Hapus toast setelah 3 detik
+  setTimeout(() => {
+    toast.classList.remove('show');
+    // Hapus elemen dari DOM setelah transisi selesai
+    toast.addEventListener('transitionend', () => {
+      toast.remove();
+      // Hapus container jika sudah kosong
+      if (toastContainer.children.length === 0) {
+        toastContainer.remove();
+      }
+    });
+  }, 3000);
 }
+
 
 // Test koneksi ke backend
 async function testBackendConnection() {
   try {
     const response = await fetch('/api/health');
+    if (!response.ok) throw new Error('Bad response');
     const data = await response.json();
     console.log('✅ Backend connected:', data);
     return true;
@@ -109,4 +155,5 @@ async function testBackendConnection() {
 }
 
 // Initialize connection test ketika module loaded
-testBackendConnection();
+// (Komentari jika tidak diperlukan di produksi)
+// testBackendConnection();
