@@ -92,6 +92,7 @@
                                 <div class="impact-text">
                                     <span class="impact-value" id="totalCo2">0 kg</span>
                                     <span class="impact-label">CO2 Ditekan</span>
+                                    <span class="impact-analogy" id="co2Analogy"></span>
                                 </div>
                             </div>
                             <div class="impact-item">
@@ -99,6 +100,7 @@
                                 <div class="impact-text">
                                     <span class="impact-value" id="totalWater">0 L</span>
                                     <span class="impact-label">Air Dihemat</span>
+                                    <span class="impact-analogy" id="waterAnalogy"></span>
                                 </div>
                             </div>
                             <div class="impact-item">
@@ -106,9 +108,15 @@
                                 <div class="impact-text">
                                     <span class="impact-value" id="totalPlastic">0 gr</span>
                                     <span class="impact-label">Plastik Dikurangi</span>
+                                    <span class="impact-analogy" id="plasticAnalogy"></span>
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="card">
+                        <h2 class="card-title">🏆 Lencana Saya</h2>
+                        <div class="badge-grid" id="badgeGrid"></div>
                     </div>
 
                     <div class="card">
@@ -120,14 +128,28 @@
                     </div>
                     
                     <div class="card">
-                        <h2 class="card-title">Motivasi Hijau</h2>
+                        <h2 class="card-title">Motivasi AI</h2>
                         <div class="quote-section">
-                            <div class="quote-text" id="quoteText">
+                            <div class="quote-text" id="aiQuoteText">
                                 "Memuat..."
                             </div>
-                            <div class="quote-author" id="quoteAuthor">
+                            <div class="quote-author" id="aiQuoteAuthor">
                                 - EcoHabit
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2 class="card-title">Asisten Eco</h2>
+                        <div class="ai-assistant">
+                            <div class="form-group">
+                                <textarea id="aiQuestionInput" class="form-input" rows="3" placeholder="Tanya apa saja tentang lingkungan..."></textarea>
+                            </div>
+                            <div class="ai-buttons">
+                                <button id="aiAskBtn" class="btn btn-sm">Tanya AI</button>
+                                <button id="aiSuggestBtn" class="btn btn-secondary btn-sm">Beri Saran Aktivitas</button>
+                            </div>
+                            <div id="aiResponseArea" class="ai-response"></div>
                         </div>
                     </div>
                 </aside>
@@ -135,8 +157,14 @@
                 <section class="main-content">
                     <div class="card">
                         <h2 class="card-title">Aktivitas Hijau Hari Ini</h2>
-                        <div id="activitiesList">
-                            </div>
+                        <div class="filter-container">
+                            <button class="btn-filter active" data-filter="Semua">Semua</button>
+                            <button class="btn-filter" data-filter="Rumah">Rumah</button>
+                            <button class="btn-filter" data-filter="Konsumsi">Konsumsi</button>
+                            <button class="btn-filter" data-filter="Transportasi">Transportasi</button>
+                            <button class="btn-filter" data-filter="Lainnya">Lainnya</button>
+                        </div>
+                        <div id="activitiesList"></div>
                     </div>
 
                     <div class="card">

@@ -153,7 +153,3 @@ async function testBackendConnection() {
     return false;
   }
 }
-
-// Initialize connection test ketika module loaded
-// (Komentari jika tidak diperlukan di produksi)
-// testBackendConnection();

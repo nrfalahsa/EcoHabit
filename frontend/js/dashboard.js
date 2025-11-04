@@ -4,6 +4,24 @@ let userData = null;
 let progressData = null; // Data progress 7 hari
 let allActivities = []; // Daftar semua aktivitas dari backend
 let myChartInstance = null; 
+let currentActivityFilter = 'Semua';
+
+const allBadges = {
+  // Poin
+  'POIN_1': { name: 'Poin Pertama', icon: '✨' },
+  'POIN_100': { name: 'Kolektor Poin', icon: '💰' },
+  'POIN_500': { name: 'Master Poin', icon: '👑' },
+  // Level
+  'LEVEL_EXPLORER': { name: 'Eco Explorer', icon: '🌿' },
+  'LEVEL_HERO': { name: 'Planet Hero', icon: '🌎' },
+  // Dampak
+  'AIR_50L': { name: 'Penghemat Air', icon: '💧' },
+  'AIR_200L': { name: 'Pahlawan Air', icon: '🌊' },
+  'CO2_10KG': { name: 'Penyerap Karbon', icon: '💨' },
+  'CO2_50KG': { name: 'Pejuang Iklim', icon: '🌳' },
+  'PLASTIK_100G': { name: 'Anti-Plastik', icon: '♻️' },
+  'PLASTIK_500G': { name: 'Bebas Plastik', icon: '🚫' },
+};
 
 // Element selectors
 const loadingState = document.getElementById('loadingState');
@@ -31,6 +49,22 @@ function setupEventListeners() {
   if(userData && userNameEl) {
     userNameEl.textContent = userData.name;
   }
+
+  // --- EVENT LISTENER AI BARU ---
+  document.getElementById('aiAskBtn')?.addEventListener('click', handleAskEco);
+  document.getElementById('aiSuggestBtn')?.addEventListener('click', handleSuggestActivity);
+  document.querySelectorAll('.btn-filter').forEach(button => {
+    button.addEventListener('click', () => {
+      // Hapus kelas .active dari tombol lama
+      document.querySelector('.btn-filter.active').classList.remove('active');
+      // Tambah kelas .active ke tombol baru
+      button.classList.add('active');
+      // Set filter global
+      currentActivityFilter = button.dataset.filter;
+      // Render ulang aktivitas dengan filter baru
+      renderActivities();
+    });
+  });
 }
 
 async function loadDashboardData() {
@@ -43,7 +77,6 @@ async function loadDashboardData() {
       authFetch('/activities'),      // Daftar aktivitas
       authFetch('/progress/savings'),  // Total dampak
       authFetch('/users/leaderboard'),
-      fetch(`${API_BASE_URL}/quotes/random`) // Quote
     ]);
 
     // 2. Simpan data
@@ -56,18 +89,13 @@ async function loadDashboardData() {
     renderChart();
     renderImpactStats(savingsResponse); // <-- Ini yang mungkin menyebabkan error
     renderLeaderboard(leaderboardResponse);
-    
-    // Cek quote
-    if (quoteResponse.ok) {
-      const quote = await quoteResponse.json();
-      renderQuote(quote.text, quote.author);
-    } else {
-      // Jika quote gagal, jangan hentikan semua, beri default
-      console.error('Gagal memuat quote');
-      renderQuote("Setiap tindakan kecil untuk lingkungan membawa perubahan besar untuk masa depan.", "EcoHabit");
-    }
-    
+    renderBadges(progressData.badges);
+
     showLoading(false);
+
+    // 5. Muat data AI secara asinkron (tidak memblokir UI)
+    loadAiMotivation();
+    loadImpactAnalogies(savingsResponse);
     
   } catch (error) {
     console.error('Error loading dashboard data:', error);
@@ -75,7 +103,100 @@ async function loadDashboardData() {
   }
 }
 
+// --- FUNGSI AI BARU ---
 
+async function loadAiMotivation() {
+  try {
+    const quoteTextEl = document.getElementById('aiQuoteText');
+    const quoteAuthorEl = document.getElementById('aiQuoteAuthor');
+    
+    const response = await authFetch('/ai/motivation', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: userData.name,
+        level: progressData.level
+      })
+    });
+    
+    if(quoteTextEl) quoteTextEl.textContent = response.text;
+    if(quoteAuthorEl) quoteAuthorEl.textContent = `- ${response.author}`;
+
+  } catch (error) {
+    console.warn('Gagal memuat motivasi AI:', error.message);
+    renderQuote("Setiap tindakan kecil untuk lingkungan membawa perubahan besar untuk masa depan.", "EcoHabit");
+  }
+}
+
+async function loadImpactAnalogies(savings) {
+  try {
+    const response = await authFetch('/ai/analyze-impact', {
+      method: 'POST',
+      body: JSON.stringify(savings)
+    });
+
+    const co2AnalogyEl = document.getElementById('co2Analogy');
+    const waterAnalogyEl = document.getElementById('waterAnalogy');
+    const plasticAnalogyEl = document.getElementById('plasticAnalogy');
+
+    if (co2AnalogyEl) co2AnalogyEl.textContent = response.co2Analogy;
+    if (waterAnalogyEl) waterAnalogyEl.textContent = response.waterAnalogy;
+    if (plasticAnalogyEl) plasticAnalogyEl.textContent = response.plasticAnalogy;
+
+  } catch (error) {
+    console.warn('Gagal memuat analogi AI:', error.message);
+  }
+}
+
+async function handleAskEco() {
+  const inputEl = document.getElementById('aiQuestionInput');
+  const responseArea = document.getElementById('aiResponseArea');
+  const btn = document.getElementById('aiAskBtn');
+  const question = inputEl.value;
+
+  if (!question) {
+    showAlert('Silakan tulis pertanyaan Anda', 'error');
+    return;
+  }
+
+  responseArea.textContent = 'Asisten Eco sedang berpikir...';
+  btn.disabled = true;
+
+  try {
+    const response = await authFetch('/ai/ask', {
+      method: 'POST',
+      body: JSON.stringify({ question })
+    });
+    responseArea.innerHTML = formatAIResponse(response.answer);
+    inputEl.value = ''; // Kosongkan input
+  } catch (error) {
+    responseArea.innerHTML = `Maaf, terjadi kesalahan: ${error.message}`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function handleSuggestActivity() {
+  const responseArea = document.getElementById('aiResponseArea');
+  const btn = document.getElementById('aiSuggestBtn');
+  
+  const completedToday = progressData.todayProgress ? 
+    progressData.todayProgress.map(a => a.name) : [];
+
+  responseArea.textContent = 'Mencari saran aktivitas...';
+  btn.disabled = true;
+
+  try {
+    const response = await authFetch('/ai/suggest', {
+      method: 'POST',
+      body: JSON.stringify({ completedActivities: completedToday })
+    });
+    responseArea.innerHTML = formatAIResponse(response.suggestion);
+  } catch (error) {
+    responseArea.innerHTML = `Maaf, terjadi kesalahan: ${error.message}`;
+  } finally {
+    btn.disabled = false;
+  }
+}
 
 function showLoading(isLoading) {
   if (isLoading) {
@@ -118,6 +239,25 @@ function getBadgeIcon(points) {
   return '🔥';
 }
 
+/**
+ * Mengubah teks AI (Markdown sederhana) menjadi HTML
+ * @param {string} text Teks dari AI
+ * @returns {string} String HTML
+ */
+function formatAIResponse(text) {
+  let html = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Mengubah **bold** menjadi <strong>
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')       // Mengubah *italic* menjadi <em>
+    .replace(/^- (.*)$/gm, '<li>$1</li>');      // Mengubah - bullet menjadi <li>
+
+  // Jika ada <li>, bungkus dengan <ul>
+  if (html.includes('<li>')) {
+    html = '<ul>' + html.replace(/<\/li>\s*<li>/g, '</li><li>') + '</ul>';
+  }
+  
+  return html;
+}
+
 function renderActivities() {
   const activitiesContainer = document.getElementById('activitiesList');
   if (!activitiesContainer) return; // Jika kontainer tidak ada, hentikan fungsi
@@ -126,8 +266,16 @@ function renderActivities() {
   
   const completedToday = progressData.todayProgress ? 
     progressData.todayProgress.map(a => a.name) : [];
+
+  // --- LOGIKA FILTER DIMASUKKAN DI SINI ---
+  const filteredActivities = allActivities.filter(activity => {
+    if (currentActivityFilter === 'Semua') {
+      return true; // Tampilkan semua
+    }
+    return activity.category === currentActivityFilter; // Tampilkan kategori yang cocok
+  });
   
-  allActivities.forEach(activity => {
+  filteredActivities.forEach(activity => {
     const isCompleted = completedToday.includes(activity.name);
     
     const activityElement = document.createElement('div');
@@ -135,7 +283,7 @@ function renderActivities() {
     activityElement.innerHTML = `
       <div class="activity-checkbox ${isCompleted ? 'checked' : ''}" 
            data-activity-name="${activity.name}">
-        ${isCompleted ? '✔' : ''} 
+        ${isCompleted ? '✓' : ''} 
       </div>
       <div class="activity-info">
         <div class="activity-name">${activity.name}</div>
@@ -165,6 +313,7 @@ async function completeActivity(activityName, checkboxElement) {
     // Perbarui data lokal
     progressData.totalPoints = response.totalPoints;
     progressData.level = response.level;
+    progressData.badges = response.badges;
     
     if (progressData.todayProgress) {
         progressData.todayProgress.push({ name: activityName, points: response.points });
@@ -183,13 +332,26 @@ async function completeActivity(activityName, checkboxElement) {
     // Muat ulang total dampak
     const savingsResponse = await authFetch('/progress/savings');
     renderImpactStats(savingsResponse);
+    // Muat ulang analogi AI
+    loadImpactAnalogies(savingsResponse);
 
     // Render ulang UI
     updateLevelBadge();
     renderActivities();
     renderChart();
+    renderBadges(progressData.badges);
     
     showAlert(response.message, 'success');
+
+    // --- 5. TAMPILKAN ALERT LENCANA BARU ---
+    if (response.newBadges && response.newBadges.length > 0) {
+      response.newBadges.forEach((badge, index) => {
+        // Beri sedikit jeda agar tidak tumpang tindih
+        setTimeout(() => {
+          showAlert(`🏆 Lencana Baru: ${badge.name}!`, 'success');
+        }, (index + 1) * 1000);
+      });
+    }
     
   } catch (error) {
     console.error('Error completing activity:', error);
@@ -237,6 +399,34 @@ function renderLeaderboard(users) {
     
     listEl.appendChild(li);
   });
+}
+
+// --- 6. TAMBAHKAN FUNGSI RENDER LENCANA BARU ---
+// (Letakkan di dekat fungsi render lainnya, misal setelah renderLeaderboard)
+
+function renderBadges(userBadges = []) {
+  const badgeGrid = document.getElementById('badgeGrid');
+  if (!badgeGrid) return;
+
+  badgeGrid.innerHTML = ''; // Kosongkan grid
+
+  // Loop melalui SEMUA lencana yang mungkin
+  for (const badgeId in allBadges) {
+    const badge = allBadges[badgeId];
+    const isUnlocked = userBadges.includes(badgeId);
+
+    const badgeElement = document.createElement('div');
+    badgeElement.className = `badge-item ${isUnlocked ? 'unlocked' : ''}`;
+    
+    badgeElement.innerHTML = `
+      <div class="badge-icon">${badge.icon}</div>
+      <div class="badge-tooltip">
+        <strong>${badge.name}</strong>
+      </div>
+    `;
+    
+    badgeGrid.appendChild(badgeElement);
+  }
 }
 
 function renderChart() {

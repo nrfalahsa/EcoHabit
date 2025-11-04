@@ -490,3 +490,158 @@
   font-size: 0.9rem;
   color: #6c757d;
 }
+
+/* ========================================= */
+/* IMPACT STATS (MODIFIKASI) */
+/* ========================================= */
+
+.impact-analogy {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* ========================================= */
+/* AI ASSISTANT CARD STYLES */
+/* ========================================= */
+.ai-assistant .form-group {
+  margin-bottom: 1rem;
+}
+
+.ai-assistant .form-input {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box; 
+  resize: vertical;
+}
+
+.ai-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.ai-response {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: #343a40;
+  min-height: 50px;
+  white-space: pre-line; /* Menjaga format baris baru dari AI */
+}
+
+/* ========================================= */
+/* ACTIVITY FILTER BUTTONS */
+/* ========================================= */
+
+.filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.btn-filter {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  color: #495057;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-filter:hover {
+  background-color: #e9ecef;
+}
+
+.btn-filter.active {
+  background-color: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
+}
+
+/* ========================================= */
+/* BADGE (LENCANA) STYLES */
+/* ========================================= */
+
+.badge-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center; /* Pusatkan lencana jika baris tidak penuh */
+}
+
+.badge-item {
+  position: relative; /* Untuk tooltip */
+  width: 60px;
+  height: 60px;
+  cursor: help;
+}
+
+.badge-icon {
+  font-size: 3rem;
+  line-height: 1;
+  text-align: center;
+  opacity: 0.3; /* Default: terkunci */
+  filter: grayscale(100%);
+  transition: all 0.3s ease;
+}
+
+.badge-item.unlocked .badge-icon {
+  opacity: 1;
+  filter: grayscale(0%);
+}
+
+.badge-item:hover .badge-icon {
+  transform: scale(1.1);
+}
+
+.badge-tooltip {
+  position: absolute;
+  bottom: 110%; /* Muncul di atas ikon */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #343a40;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 10;
+}
+
+.badge-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #343a40 transparent transparent transparent;
+}
+
+.badge-item:hover .badge-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
