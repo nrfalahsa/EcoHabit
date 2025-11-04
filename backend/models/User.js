@@ -25,6 +25,18 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  totalCo2: {
+    type: Number,
+    default: 0
+  },
+  totalWater: {
+    type: Number,
+    default: 0
+  },
+  totalPlastic: {
+    type: Number,
+    default: 0
+  },
   level: {
     type: String,
     default: '🌱 Green Starter'

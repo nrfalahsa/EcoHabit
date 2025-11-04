@@ -43,6 +43,7 @@ app.use('/api/progress', require('./routes/progress'));
 app.use('/api/quotes', require('./routes/quotes'));
 app.use('/api/activities', require('./routes/activities'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/ai', require('./routes/ai'));
 
 // Serve frontend pages
 app.get('/', (req, res) => {

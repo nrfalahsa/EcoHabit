@@ -12,6 +12,11 @@ const activitySchema = new mongoose.Schema({
     required: true,
     default: 0
   },
+  category: {
+   type: String,
+   default: 'Lainnya',
+  trim: true
+  },
   // Faktor Dampak (Estimasi)
   impact_co2_kg: {
     type: Number,

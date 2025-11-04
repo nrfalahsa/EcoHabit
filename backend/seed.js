@@ -3,7 +3,6 @@ const Quote = require('./models/Quote');
 const Activity = require('./models/Activity'); // <-- 1. IMPORT
 require('dotenv').config();
 
-// ... (seedQuotes array) ...
 const seedQuotes = [
   {
     text: "Bumi tidak warisan dari nenek moyang kita, tapi pinjaman untuk anak cucu kita.",
@@ -37,14 +36,29 @@ const seedQuotes = [
 
 // 2. BUAT ARRAY AKTIVITAS (berdasarkan Langkah 1)
 const seedActivities = [
-  { name: 'Bawa tumbler minum', points: 10, impact_co2_kg: 0.08, impact_water_liter: 2, impact_plastic_gram: 20 },
-  { name: 'Matikan lampu saat tidak digunakan', points: 5, impact_co2_kg: 0.01, impact_water_liter: 0, impact_plastic_gram: 0 },
-  { name: 'Kurangi penggunaan AC', points: 15, impact_co2_kg: 0.7, impact_water_liter: 0, impact_plastic_gram: 0 },
-  { name: 'Gunakan transportasi umum', points: 20, impact_co2_kg: 1.0, impact_water_liter: 0, impact_plastic_gram: 0 },
-  { name: 'Tanam pohon', points: 30, impact_co2_kg: 0, impact_water_liter: 0, impact_plastic_gram: 0 },
-  { name: 'Kurangi sampah plastik', points: 15, impact_co2_kg: 0.02, impact_water_liter: 0, impact_plastic_gram: 10 },
-  { name: 'Kompos sampah organik', points: 25, impact_co2_kg: 1.2, impact_water_liter: 0, impact_plastic_gram: 0 },
-  { name: 'Gunakan produk daur ulang', points: 10, impact_co2_kg: 0.2, impact_water_liter: 20, impact_plastic_gram: 0 }
+  // Kategori: Konsumsi
+  { name: 'Bawa tumbler minum', points: 10, category: 'Konsumsi', impact_co2_kg: 0.08, impact_water_liter: 2, impact_plastic_gram: 20 },
+  { name: 'Gunakan produk daur ulang', points: 10, category: 'Konsumsi', impact_co2_kg: 0.2, impact_water_liter: 20, impact_plastic_gram: 0 },
+  { name: 'Belanja tanpa tas plastik', points: 15, category: 'Konsumsi', impact_co2_kg: 0.05, impact_water_liter: 0, impact_plastic_gram: 50 },
+  { name: 'Makan sayuran (Vegetarian)', points: 20, category: 'Konsumsi', impact_co2_kg: 1.5, impact_water_liter: 50, impact_plastic_gram: 0 },
+  { name: 'Kurangi sisa makanan', points: 20, category: 'Konsumsi', impact_co2_kg: 0.5, impact_water_liter: 0, impact_plastic_gram: 0 },
+
+  // Kategori: Rumah
+  { name: 'Matikan lampu saat tidak digunakan', points: 5, category: 'Rumah', impact_co2_kg: 0.01, impact_water_liter: 0, impact_plastic_gram: 0 },
+  { name: 'Cabut charger tidak terpakai', points: 5, category: 'Rumah', impact_co2_kg: 0.005, impact_water_liter: 0, impact_plastic_gram: 0 },
+  { name: 'Kurangi penggunaan AC', points: 15, category: 'Rumah', impact_co2_kg: 0.7, impact_water_liter: 0, impact_plastic_gram: 0 },
+  { name: 'Kompos sampah organik', points: 25, category: 'Rumah', impact_co2_kg: 1.2, impact_water_liter: 0, impact_plastic_gram: 0 },
+  { name: 'Hemat penggunaan air mandi', points: 10, category: 'Rumah', impact_co2_kg: 0.1, impact_water_liter: 20, impact_plastic_gram: 0 },
+
+  // Kategori: Transportasi
+  { name: 'Gunakan transportasi umum', points: 20, category: 'Transportasi', impact_co2_kg: 1.0, impact_water_liter: 0, impact_plastic_gram: 0 },
+  { name: 'Berjalan kaki (min. 1 km)', points: 15, category: 'Transportasi', impact_co2_kg: 0.2, impact_water_liter: 0, impact_plastic_gram: 0 },
+  { name: 'Bersepeda ke tujuan', points: 20, category: 'Transportasi', impact_co2_kg: 0.3, impact_water_liter: 0, impact_plastic_gram: 0 },
+  
+  // Kategori: Lainnya
+  { name: 'Tanam pohon', points: 30, category: 'Lainnya', impact_co2_kg: 0, impact_water_liter: 0, impact_plastic_gram: 0 },
+  { name: 'Kurangi sampah plastik (umum)', points: 15, category: 'Lainnya', impact_co2_kg: 0.02, impact_water_liter: 0, impact_plastic_gram: 10 },
+  { name: 'Edukasi teman tentang lingkungan', points: 10, category: 'Lainnya', impact_co2_kg: 0, impact_water_liter: 0, impact_plastic_gram: 0 }
 ];
 
 

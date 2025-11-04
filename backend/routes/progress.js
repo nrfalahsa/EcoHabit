@@ -2,7 +2,8 @@ const express = require('express');
 const auth = require('../middleware/auth');
 const Progress = require('../models/Progress');
 const User = require('../models/User');
-const Activity = require('../models/Activity'); // <-- 1. IMPORT MODEL BARU
+const Activity = require('../models/Activity'); 
+const { checkAndAwardBadges } = require('../utils/badgeManager');
 
 const router = express.Router();
 
@@ -36,7 +37,8 @@ router.get('/', auth, async (req, res) => {
       chartData,
       todayProgress: todayProgress ? todayProgress.activities : [], // Kirim aktivitas hari ini
       totalPoints: req.user.totalPoints,
-      level: req.user.level
+      level: req.user.level,
+      badges: req.user.badges
     });
   } catch (error) {
     console.error('Get progress error:', error);
@@ -96,18 +98,35 @@ router.post('/update', auth, async (req, res) => {
     progress.dailyPoints += points;
     await progress.save();
 
-    // Update total points user
+    // --- 3. LOGIKA BARU UNTUK USER ---
     const user = await User.findById(req.user._id);
-    user.totalPoints += points;
-    user.updateLevel(); // Update level berdasarkan total points
+
+    // Update total points
+    user.totalPoints += activity.points;
+
+    // Update total dampak (dari model Activity)
+    user.totalCo2 += activity.impact_co2_kg || 0;
+    user.totalWater += activity.impact_water_liter || 0;
+    user.totalPlastic += activity.impact_plastic_gram || 0;
+
+    // Update level
+    user.updateLevel();
+    
+    // Cek dan berikan lencana baru
+    const newBadges = checkAndAwardBadges(user);
+
+    // Simpan semua perubahan user
     await user.save();
 
     res.json({
       progress,
       totalPoints: user.totalPoints,
       level: user.level,
-      message: `+${points} poin untuk ${activityName}!`
+      badges: user.badges, // Kirim daftar lencana terbaru
+      newBadges: newBadges, // Kirim lencana yang BARU didapat
+      message: `+${activity.points} poin untuk ${activityName}!`
     });
+
   } catch (error) {
     console.error('Update progress error:', error);
     res.status(500).json({ message: 'Server error' });
