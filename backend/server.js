@@ -9,7 +9,6 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../frontend-react/build')));
 
 // Debug: Cek environment variables
 console.log('MONGODB_URI:', process.env.MONGODB_URI);
@@ -60,10 +59,6 @@ app.get('/api/health', (req, res) => {
     database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
     timestamp: new Date().toISOString()
   });
-});
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend-react/build', 'index.html'));
 });
 
 const PORT = process.env.PORT || 5000;
