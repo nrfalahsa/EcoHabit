@@ -4,10 +4,10 @@
     {
       "src": "frontend-react/package.json",
       "use": "@vercel/static-build",
-      "config": { 
+      "config": {
         "installCommand": "npm install",
         "buildCommand": "npm run build",
-        "outputDirectory": "build" 
+        "outputDirectory": "build"
       }
     },
     {
@@ -21,16 +21,7 @@
       "dest": "backend/server.js"
     },
     {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "/manifest.json",
-      "dest": "/manifest.json"
-    },
-    {
-      "src": "/favicon.ico",
-      "dest": "/favicon.ico"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
