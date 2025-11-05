@@ -1,0 +1,21 @@
+/* ========================================= */
+/* CSS GLOBAL (UNTUK SEMUA HALAMAN) */
+/* ========================================= */
+
+/* Reset dan Base Styles (Asumsi sudah ada) */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fa; /* Warna latar lebih netral */
+  color: #212529;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.hidden {
+  display: none !important;
+}
