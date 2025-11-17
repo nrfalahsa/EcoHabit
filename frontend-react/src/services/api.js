@@ -27,26 +27,33 @@ export function clearAuthStorage() {
 }
 
 /**
- * Upload file ke Catbox.moe
+ * Upload file via Backend Proxy (Menghindari CORS)
  */
 export async function uploadToCatbox(file) {
+  const token = getToken();
   const formData = new FormData();
-  formData.append('reqtype', 'fileupload');
-  formData.append('fileToUpload', file);
-  // formData.append('userhash', 'YOUR_USER_HASH'); // Opsional, jika punya akun catbox
+  // Nama field harus 'file' sesuai dengan upload.single('file') di backend
+  formData.append('file', file); 
 
   try {
-    const response = await fetch('https://catbox.moe/user/api.php', {
+    // Kita tidak menggunakan authFetch karena kita perlu membiarkan browser
+    // mengatur Content-Type menjadi multipart/form-data secara otomatis.
+    const response = await fetch(`${API_BASE_URL}/upload/catbox`, {
       method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+        // JANGAN set 'Content-Type' secara manual!
+      },
       body: formData,
     });
 
     if (!response.ok) {
-      throw new Error('Gagal mengupload gambar');
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Gagal mengupload gambar');
     }
 
-    const imageUrl = await response.text(); // Catbox mengembalikan raw text URL
-    return imageUrl;
+    const data = await response.json();
+    return data.url; // Mengembalikan URL gambar dari backend
   } catch (error) {
     console.error('Upload Error:', error);
     throw error;
