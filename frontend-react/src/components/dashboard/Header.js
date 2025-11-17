@@ -5,16 +5,19 @@ import { useToast } from '../../hooks/useToast';
 import { authFetch, uploadToCatbox } from '../../services/api';
 import Modal from '../common/Modal';
 
+// Import CSS khusus Header
+import '../../assets/header.css'; 
+
 function Header() {
   const { user, logout, theme, toggleTheme, updateUserState } = useContext(AuthContext);
   const { showToast } = useToast();
   
   // State untuk Dropdown
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [activeSubmenu, setActiveSubmenu] = useState(null); // 'settings' atau null
+  const [activeSubmenu, setActiveSubmenu] = useState(null);
 
-  // State untuk Modal
-  const [activeModal, setActiveModal] = useState(null); // 'password', 'name', 'email', 'photo', null
+  // State untuk Modal (tambahkan 'logout' ke logika ini)
+  const [activeModal, setActiveModal] = useState(null); // 'password', 'name', 'email', 'photo', 'logout', null
   const [isLoading, setIsLoading] = useState(false);
 
   // Form States
@@ -27,7 +30,6 @@ function Header() {
 
   const dropdownRef = useRef(null);
 
-  // Tutup dropdown jika klik di luar
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -43,7 +45,30 @@ function Header() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handler Update Nama/Email
+  const openModal = (type) => {
+    setActiveModal(type);
+    setFormData({
+      currentPassword: '',
+      newPassword: '',
+      newName: user?.name || '',
+      newEmail: user?.email || ''
+    });
+    setIsDropdownOpen(false);
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+    setIsLoading(false);
+  };
+
+  // --- HANDLERS ---
+
+  // Handler Logout (Baru)
+  const handleConfirmLogout = () => {
+    logout(); // Panggil fungsi logout dari context
+    closeModal();
+  };
+
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -58,16 +83,15 @@ function Header() {
       });
 
       updateUserState(updatedUser);
-      showToast('Profil berhasil diperbarui', 'success');
+      showToast(`Berhasil mengubah ${activeModal === 'name' ? 'nama' : 'email'}`, 'success');
       closeModal();
     } catch (error) {
-      showToast(error.message, 'error');
+      showToast(error.message || 'Gagal memperbarui profil', 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handler Ganti Password
   const handleChangePassword = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -82,13 +106,12 @@ function Header() {
       showToast('Password berhasil diubah', 'success');
       closeModal();
     } catch (error) {
-      showToast(error.message, 'error');
+      showToast(error.message || 'Gagal mengubah password', 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handler Upload Foto
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -96,10 +119,8 @@ function Header() {
     setIsLoading(true);
     try {
       showToast('Mengupload gambar...', 'info');
-      // 1. Upload ke Catbox
       const imageUrl = await uploadToCatbox(file);
       
-      // 2. Simpan URL ke Backend
       const updatedUser = await authFetch('/users/profile', {
         method: 'PUT',
         body: JSON.stringify({ profilePicture: imageUrl })
@@ -109,26 +130,12 @@ function Header() {
       showToast('Foto profil berhasil diubah', 'success');
       closeModal();
     } catch (error) {
-      showToast('Gagal upload foto: ' + error.message, 'error');
+      showToast(error.message || 'Gagal upload foto', 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const openModal = (type) => {
-    setActiveModal(type);
-    setFormData({
-      currentPassword: '',
-      newPassword: '',
-      newName: user.name,
-      newEmail: user.email
-    });
-    setIsDropdownOpen(false); // Tutup dropdown saat modal buka
-  };
-
-  const closeModal = () => setActiveModal(null);
-
-  // Default Avatar jika user belum punya foto
   const avatarSrc = user?.profilePicture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=4CAF50&color=fff`;
 
   return (
@@ -145,26 +152,22 @@ function Header() {
 
             {isDropdownOpen && (
               <div className="dropdown-menu">
-                {/* MENU UTAMA */}
                 {activeSubmenu !== 'settings' && (
                   <>
-                    <div 
-                      className="dropdown-item has-submenu"
-                      onClick={() => setActiveSubmenu('settings')}
-                    >
+                    <div className="dropdown-item has-submenu" onClick={() => setActiveSubmenu('settings')}>
                       ⚙️ Pengaturan <span>›</span>
                     </div>
                     <div className="dropdown-item" onClick={toggleTheme}>
                       {theme === 'light' ? '🌙 Mode Gelap' : '☀️ Mode Terang'}
                     </div>
                     <div className="dropdown-divider"></div>
-                    <div className="dropdown-item danger" onClick={logout}>
+                    {/* UBAH DI SINI: Panggil openModal('logout') bukan logout langsung */}
+                    <div className="dropdown-item danger" onClick={() => openModal('logout')}>
                       🚪 Logout
                     </div>
                   </>
                 )}
 
-                {/* SUBMENU PENGATURAN */}
                 {activeSubmenu === 'settings' && (
                   <>
                     <div className="dropdown-header" onClick={() => setActiveSubmenu(null)}>
@@ -190,21 +193,14 @@ function Header() {
         </div>
       </div>
 
-      {/* MODALS */}
+      {/* --- MODALS --- */}
       
       {/* Modal Ganti Nama */}
       <Modal isOpen={activeModal === 'name'} onClose={closeModal} title="Ganti Nama">
         <form onSubmit={handleUpdateProfile}>
           <div className="form-group">
             <label>Nama Baru</label>
-            <input 
-              type="text" 
-              name="newName" 
-              className="form-input"
-              value={formData.newName} 
-              onChange={handleInputChange} 
-              required 
-            />
+            <input type="text" name="newName" className="form-input" value={formData.newName} onChange={handleInputChange} required />
           </div>
           <button type="submit" className="btn btn-primary" disabled={isLoading}>
             {isLoading ? 'Menyimpan...' : 'Simpan'}
@@ -217,14 +213,7 @@ function Header() {
         <form onSubmit={handleUpdateProfile}>
           <div className="form-group">
             <label>Email Baru</label>
-            <input 
-              type="email" 
-              name="newEmail" 
-              className="form-input"
-              value={formData.newEmail} 
-              onChange={handleInputChange} 
-              required 
-            />
+            <input type="email" name="newEmail" className="form-input" value={formData.newEmail} onChange={handleInputChange} required />
           </div>
           <button type="submit" className="btn btn-primary" disabled={isLoading}>
             {isLoading ? 'Menyimpan...' : 'Simpan'}
@@ -237,38 +226,14 @@ function Header() {
         <form onSubmit={handleChangePassword}>
           <div className="form-group">
             <label>Password Saat Ini</label>
-            <input 
-              type="password" 
-              name="currentPassword" 
-              className="form-input"
-              value={formData.currentPassword} 
-              onChange={handleInputChange} 
-              required 
-              placeholder="Masukkan password lama"
-            />
-             {/* Tambahan Opsi Lupa Password */}
-             <div style={{ textAlign: 'right', marginTop: '5px' }}>
-              <a 
-                href="/forgot-password" 
-                className="text-sm text-primary" 
-                style={{ fontSize: '0.85rem', textDecoration: 'none', color: '#4CAF50' }}
-              >
-                Lupa password?
-              </a>
+            <input type="password" name="currentPassword" className="form-input" value={formData.currentPassword} onChange={handleInputChange} required placeholder="Masukkan password lama" />
+             <div className="forgot-password-wrapper">
+              <a href="/forgot-password" className="forgot-password-link">Lupa password?</a>
             </div>
           </div>
           <div className="form-group">
             <label>Password Baru</label>
-            <input 
-              type="password" 
-              name="newPassword" 
-              className="form-input"
-              value={formData.newPassword} 
-              onChange={handleInputChange} 
-              required 
-              minLength={6}
-              placeholder="Masukkan password baru"
-            />
+            <input type="password" name="newPassword" className="form-input" value={formData.newPassword} onChange={handleInputChange} required minLength={6} placeholder="Masukkan password baru" />
           </div>
           <button type="submit" className="btn btn-primary" disabled={isLoading}>
             {isLoading ? 'Menyimpan...' : 'Ubah Password'}
@@ -278,26 +243,31 @@ function Header() {
 
       {/* Modal Ganti Foto */}
       <Modal isOpen={activeModal === 'photo'} onClose={closeModal} title="Ganti Foto Profil">
-        <div className="text-center">
-          <img 
-            src={avatarSrc} 
-            alt="Preview" 
-            style={{width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', marginBottom: '1rem'}} 
-          />
-          <p style={{marginBottom: '1rem'}}>Pilih foto baru (JPG/PNG)</p>
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={handlePhotoUpload}
-            style={{display: 'none'}}
-            id="photo-upload"
-          />
-          <label htmlFor="photo-upload" className="btn btn-primary" style={{cursor: isLoading ? 'wait' : 'pointer'}}>
+        <div className="upload-modal-container">
+          <img src={avatarSrc} alt="Preview" className="profile-preview-img" />
+          <p style={{marginBottom: '1rem', fontWeight: '500'}}>Pilih foto baru (JPG/PNG)</p>
+          <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{display: 'none'}} id="photo-upload" />
+          <label htmlFor="photo-upload" className={`btn btn-primary file-upload-btn ${isLoading ? 'loading' : ''}`}>
             {isLoading ? 'Mengupload...' : 'Pilih File'}
           </label>
-          <p style={{fontSize: '0.8rem', marginTop: '0.5rem', color: '#6c757d'}}>
-            Powered by Catbox.moe
+          <p className="upload-helper-text">Powered by Catbox.moe</p>
+        </div>
+      </Modal>
+
+      {/* BARU: Modal Konfirmasi Logout */}
+      <Modal isOpen={activeModal === 'logout'} onClose={closeModal} title="Konfirmasi Logout">
+        <div className="text-center">
+          <p className="logout-confirmation-text">
+            Apakah Anda yakin ingin keluar dari aplikasi?
           </p>
+          <div className="modal-actions">
+            <button onClick={closeModal} className="btn btn-secondary">
+              Batal
+            </button>
+            <button onClick={handleConfirmLogout} className="btn btn-danger">
+              Ya, Keluar
+            </button>
+          </div>
         </div>
       </Modal>
 

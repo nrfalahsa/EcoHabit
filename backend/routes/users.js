@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const User = require('../models/User');
+const bcrypt = require('bcryptjs'); // Pastikan bcryptjs diinstall jika ingin hash manual, atau gunakan method model
 
 // @route   GET api/users/leaderboard
 // @desc    Dapatkan pengguna dengan poin tertinggi
@@ -20,10 +21,6 @@ router.get('/leaderboard', auth, async (req, res) => {
   }
 });
 
-// ==========================================
-// TAMBAHKAN KODE DI BAWAH INI
-// ==========================================
-
 // @route   PUT api/users/profile
 // @desc    Update profil user (nama, email, foto)
 // @access  Private
@@ -31,11 +28,14 @@ router.put('/profile', auth, async (req, res) => {
   try {
     const { name, email, profilePicture } = req.body;
     
-    // Cari user berdasarkan ID dari token
-    const user = await User.findById(req.user.userId);
-    if (!user) return res.status(404).json({ message: 'User tidak ditemukan' });
+    // PERBAIKAN: Gunakan req.user._id karena req.user adalah dokumen user
+    const user = await User.findById(req.user._id);
 
-    // Update field jika ada
+    if (!user) {
+      return res.status(404).json({ message: 'User tidak ditemukan' });
+    }
+
+    // Update field jika ada data yang dikirim
     if (name) user.name = name;
     if (email) user.email = email;
     if (profilePicture) user.profilePicture = profilePicture;
@@ -43,7 +43,7 @@ router.put('/profile', auth, async (req, res) => {
     // Simpan perubahan
     await user.save();
 
-    // Kembalikan data user terbaru
+    // Kembalikan data user terbaru ke frontend
     res.json({
       id: user._id,
       name: user.name,
@@ -65,7 +65,6 @@ router.put('/change-password', auth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     
-    // Validasi input
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ message: 'Mohon isi password saat ini dan password baru' });
     }
@@ -74,16 +73,18 @@ router.put('/change-password', auth, async (req, res) => {
       return res.status(400).json({ message: 'Password baru minimal 6 karakter' });
     }
 
-    const user = await User.findById(req.user.userId);
+    // PERBAIKAN: Gunakan req.user._id
+    const user = await User.findById(req.user._id);
+    
     if (!user) return res.status(404).json({ message: 'User tidak ditemukan' });
 
-    // Cek apakah password lama benar
+    // Cek password lama
     const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
       return res.status(400).json({ message: 'Password saat ini salah' });
     }
 
-    // Set password baru (akan di-hash otomatis oleh User.js model)
+    // Set password baru
     user.password = newPassword;
     await user.save();
 
