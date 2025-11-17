@@ -2,11 +2,21 @@
 /* CSS GLOBAL (UNTUK SEMUA HALAMAN) */
 /* ========================================= */
 
-/* Reset dan Base Styles (Asumsi sudah ada) */
+:root {
+  --bg-color: #f8f9fa;
+  --text-color: #212529;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1e272e;
+  --text-color: #dfe6e9;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #f8f9fa; /* Warna latar lebih netral */
-  color: #212529;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
   line-height: 1.6;
 }
 

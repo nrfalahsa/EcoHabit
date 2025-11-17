@@ -27,6 +27,33 @@ export function clearAuthStorage() {
 }
 
 /**
+ * Upload file ke Catbox.moe
+ */
+export async function uploadToCatbox(file) {
+  const formData = new FormData();
+  formData.append('reqtype', 'fileupload');
+  formData.append('fileToUpload', file);
+  // formData.append('userhash', 'YOUR_USER_HASH'); // Opsional, jika punya akun catbox
+
+  try {
+    const response = await fetch('https://catbox.moe/user/api.php', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Gagal mengupload gambar');
+    }
+
+    const imageUrl = await response.text(); // Catbox mengembalikan raw text URL
+    return imageUrl;
+  } catch (error) {
+    console.error('Upload Error:', error);
+    throw error;
+  }
+}
+
+/**
  * Fungsi fetch terautentikasi
  * @param {string} url - URL API (tanpa /api)
  * @param {object} options - Opsi fetch (method, body, etc.)

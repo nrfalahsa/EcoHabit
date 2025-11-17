@@ -9,18 +9,34 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // State untuk tema
+  const [theme, setTheme] = useState('light');
+
   const { showToast } = useToast();
 
-  // Cek local storage saat pertama kali load
   useEffect(() => {
     const storedToken = getToken();
     const storedUser = getUser();
+    const storedTheme = localStorage.getItem('ecohabit_theme') || 'light';
+    
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(storedUser);
     }
+    
+    setTheme(storedTheme);
+    document.body.setAttribute('data-theme', storedTheme); // Terapkan tema ke body
+    
     setIsLoading(false);
   }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('ecohabit_theme', newTheme);
+    document.body.setAttribute('data-theme', newTheme);
+  };
 
   const login = async (email, password) => {
     try {
@@ -65,10 +81,21 @@ export function AuthProvider({ children }) {
     window.location.href = '/login';
   };
 
+  // Helper untuk update user state lokal setelah edit profil
+  const updateUserState = (userData) => {
+    // Merge data baru dengan data lama untuk mempertahankan field yang tidak berubah
+    const newUser = { ...user, ...userData };
+    setUser(newUser);
+    saveUser(newUser);
+  };
+
   const value = {
     user,
     token,
     isLoading,
+    theme,
+    toggleTheme,
+    updateUserState,
     login,
     register,
     logout,

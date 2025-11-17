@@ -13,7 +13,7 @@ router.get('/leaderboard', auth, async (req, res) => {
     const topUsers = await User.find()
       .sort({ totalPoints: -1 })
       .limit(5)
-      .select('name totalPoints level'); // Hanya ambil field ini
+      .select('name totalPoints level profilePicture');
 
     res.json(topUsers);
   } catch (error) {
