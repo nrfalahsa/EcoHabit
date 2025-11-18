@@ -96,10 +96,17 @@
 
 /* Level Badge */
 .level-badge {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1.5rem;
+  /* MENGGUNAKAN GRID LAYOUT */
+  display: grid; 
+  /* DIKOREKSI: Kolom gambar dipersempit menjadi 80px */
+  grid-template-columns: 80px 1fr; 
+  
+  /* Mengurangi jarak antar kolom */
+  gap: 0.75rem; 
+  
+  align-items: center; 
+  padding: 1rem; 
+  
   background: linear-gradient(135deg, #4CAF50, #66bb6a);
   color: white;
   border-radius: 12px;
@@ -111,18 +118,43 @@
   transform: translateY(-3px);
 }
 
-.badge-icon {
-  font-size: 3rem;
-  line-height: 1;
+/* TARGET CONTAINER ICON LEVEL */
+.level-badge .badge-icon {
+  /* DIKOREKSI: Ukuran container kembali ke 80px */
+  position: relative; 
+  width: 80px; 
+  height: 80px;
+  flex-shrink: 0; 
+  font-size: 0; 
+  line-height: 1; 
+  text-align: center;
+}
+
+/* TARGET GAMBAR LEVEL DI DALAM CONTAINER */
+.level-badge .badge-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* DIKOREKSI: max-width kembali ke 80px */
+    max-width: 80px; 
+}
+.level-badge .badge-icon img:hover {
+    transform: scale(1.1);
+}
+/* TARGET TEXT INFO */
+.badge-info {
+    min-width: 0; 
 }
 
 .badge-info h3 {
+  margin: 0; 
   font-size: 1.25rem;
   font-weight: 600;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.25rem; 
 }
 
 .badge-info p {
+  margin: 0; 
   font-size: 0.9rem;
   opacity: 0.9;
 }
@@ -589,7 +621,7 @@
   transform: scale(1.1);
 }
 
-.badge-icon {
+.badge-icon .badge-icon {
   font-size: 3rem;
   line-height: 1;
   text-align: center;
