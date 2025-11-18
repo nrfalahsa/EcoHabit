@@ -5,7 +5,7 @@ import { useToast } from '../../hooks/useToast';
 import { authFetch, uploadToCatbox } from '../../services/api';
 import Modal from '../common/Modal';
 
-// Import CSS khusus Header
+// Pastikan file CSS ini ada (seperti yang dibuat sebelumnya)
 import '../../assets/header.css'; 
 
 function Header() {
@@ -16,8 +16,8 @@ function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState(null);
 
-  // State untuk Modal (tambahkan 'logout' ke logika ini)
-  const [activeModal, setActiveModal] = useState(null); // 'password', 'name', 'email', 'photo', 'logout', null
+  // State untuk Modal (termasuk 'logout')
+  const [activeModal, setActiveModal] = useState(null); 
   const [isLoading, setIsLoading] = useState(false);
 
   // Form States
@@ -30,6 +30,7 @@ function Header() {
 
   const dropdownRef = useRef(null);
 
+  // Tutup dropdown jika klik di luar
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -45,6 +46,7 @@ function Header() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Reset form saat modal dibuka
   const openModal = (type) => {
     setActiveModal(type);
     setFormData({
@@ -53,7 +55,7 @@ function Header() {
       newName: user?.name || '',
       newEmail: user?.email || ''
     });
-    setIsDropdownOpen(false);
+    setIsDropdownOpen(false); 
   };
 
   const closeModal = () => {
@@ -61,14 +63,40 @@ function Header() {
     setIsLoading(false);
   };
 
+  // --- LOGIKA AVATAR (DIPERBAIKI) ---
+  // Mengambil foto profil dengan prioritas: State -> LocalStorage -> Default
+  const getAvatarSrc = () => {
+    // 1. Cek di state Context (paling update)
+    if (user && user.profilePicture) {
+      return user.profilePicture;
+    }
+    
+    // 2. Fallback ke LocalStorage (jika state belum siap sesaat setelah login)
+    try {
+      const storedUser = JSON.parse(localStorage.getItem('ecohabit_user'));
+      if (storedUser && storedUser.profilePicture) {
+        return storedUser.profilePicture;
+      }
+    } catch (e) {
+      console.error("Error parsing stored user for avatar", e);
+    }
+
+    // 3. Default Avatar (UI Avatars)
+    const name = user?.name || 'User';
+    return `https://ui-avatars.com/api/?name=${name}&background=4CAF50&color=fff`;
+  };
+
+  const avatarSrc = getAvatarSrc();
+
   // --- HANDLERS ---
 
-  // Handler Logout (Baru)
+  // Handler Konfirmasi Logout
   const handleConfirmLogout = () => {
-    logout(); // Panggil fungsi logout dari context
+    logout(); 
     closeModal();
   };
 
+  // Handler Update Nama/Email
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -92,6 +120,7 @@ function Header() {
     }
   };
 
+  // Handler Ganti Password
   const handleChangePassword = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -112,6 +141,7 @@ function Header() {
     }
   };
 
+  // Handler Upload Foto
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -119,8 +149,11 @@ function Header() {
     setIsLoading(true);
     try {
       showToast('Mengupload gambar...', 'info');
+      
+      // 1. Upload ke Catbox
       const imageUrl = await uploadToCatbox(file);
       
+      // 2. Simpan URL ke Backend Database
       const updatedUser = await authFetch('/users/profile', {
         method: 'PUT',
         body: JSON.stringify({ profilePicture: imageUrl })
@@ -136,8 +169,6 @@ function Header() {
     }
   };
 
-  const avatarSrc = user?.profilePicture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=4CAF50&color=fff`;
-
   return (
     <header className="dashboard-header">
       <div className="container">
@@ -152,6 +183,7 @@ function Header() {
 
             {isDropdownOpen && (
               <div className="dropdown-menu">
+                {/* MENU UTAMA */}
                 {activeSubmenu !== 'settings' && (
                   <>
                     <div className="dropdown-item has-submenu" onClick={() => setActiveSubmenu('settings')}>
@@ -161,13 +193,14 @@ function Header() {
                       {theme === 'light' ? '🌙 Mode Gelap' : '☀️ Mode Terang'}
                     </div>
                     <div className="dropdown-divider"></div>
-                    {/* UBAH DI SINI: Panggil openModal('logout') bukan logout langsung */}
+                    {/* Memicu Modal Konfirmasi Logout */}
                     <div className="dropdown-item danger" onClick={() => openModal('logout')}>
                       🚪 Logout
                     </div>
                   </>
                 )}
 
+                {/* SUBMENU PENGATURAN */}
                 {activeSubmenu === 'settings' && (
                   <>
                     <div className="dropdown-header" onClick={() => setActiveSubmenu(null)}>
@@ -241,20 +274,27 @@ function Header() {
         </form>
       </Modal>
 
-      {/* Modal Ganti Foto */}
+      {/* Modal Ganti Foto (Dengan Tombol Simetris) */}
       <Modal isOpen={activeModal === 'photo'} onClose={closeModal} title="Ganti Foto Profil">
         <div className="upload-modal-container">
           <img src={avatarSrc} alt="Preview" className="profile-preview-img" />
-          <p style={{marginBottom: '1rem', fontWeight: '500'}}>Pilih foto baru (JPG/PNG)</p>
+          
+          <p style={{marginBottom: '1rem', fontWeight: '500'}}>
+            Pilih foto baru (JPG/PNG)
+          </p>
+
           <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{display: 'none'}} id="photo-upload" />
+          
+          {/* Class 'file-upload-btn' diambil dari header.css untuk style simetris */}
           <label htmlFor="photo-upload" className={`btn btn-primary file-upload-btn ${isLoading ? 'loading' : ''}`}>
             {isLoading ? 'Mengupload...' : 'Pilih File'}
           </label>
+          
           <p className="upload-helper-text">Powered by Catbox.moe</p>
         </div>
       </Modal>
 
-      {/* BARU: Modal Konfirmasi Logout */}
+      {/* Modal Konfirmasi Logout */}
       <Modal isOpen={activeModal === 'logout'} onClose={closeModal} title="Konfirmasi Logout">
         <div className="text-center">
           <p className="logout-confirmation-text">
