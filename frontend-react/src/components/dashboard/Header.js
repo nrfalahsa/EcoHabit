@@ -173,7 +173,14 @@ function Header() {
     <header className="dashboard-header">
       <div className="container">
         <div className="header-content">
-          <div className="logo">EcoHabit</div>
+          <div className="logo">
+            <img 
+              src="/favicon/logo.png" 
+              alt="EcoHabit Logo" 
+              className="header-logo-img" 
+            />
+            <span>EcoHabit</span>
+          </div>
           
           <div className="user-menu" ref={dropdownRef}>
             <div className="user-trigger" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>

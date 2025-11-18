@@ -1,5 +1,21 @@
 /* frontend-react/src/assets/header.css */
 
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Jarak antara logo dan tulisan */
+  font-weight: bold;
+  font-size: 1.5rem; /* Sesuaikan ukuran font teks */
+  color: #4CAF50; /* Warna teks hijau EcoHabit */
+}
+
+/* Atur ukuran gambar logo */
+.header-logo-img {
+  width: 45px;  /* Sesuaikan lebar logo */
+  height: 45px; /* Sesuaikan tinggi logo */
+  object-fit: contain;
+}
+
 /* --- Styling Preview Foto Profil --- */
 .upload-modal-container {
   display: flex;
