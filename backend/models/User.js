@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
   },
   level: {
     type: String,
-    default: '🌱 Green Starter'
+    default: 'Green Starter'
   },
   badges: [{
     type: String
@@ -73,13 +73,13 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 // Update level berdasarkan total poin
 userSchema.methods.updateLevel = function() {
   if (this.totalPoints <= 50) {
-    this.level = '🌱 Green Starter';
+    this.level = 'Green Starter';
   } else if (this.totalPoints <= 150) {
-    this.level = '🌿 Eco Explorer';
+    this.level = 'Eco Explorer';
   } else if (this.totalPoints <= 300) {
-    this.level = '🌎 Planet Hero';
+    this.level = 'Planet Hero';
   } else {
-    this.level = '🔥 Climate Guardian';
+    this.level = 'Climate Guardian';
   }
 };
 

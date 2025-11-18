@@ -6,8 +6,9 @@ const badgeDefinitions = {
   POIN_500: { name: 'Master Poin', description: 'Mencapai total 500 poin.' },
 
   // Lencana Level
-  LEVEL_EXPLORER: { name: 'Eco Explorer', description: 'Mencapai level 🌿 Eco Explorer.' },
-  LEVEL_HERO: { name: 'Planet Hero', description: 'Mencapai level 🌎 Planet Hero.' },
+  // Menghapus emoji dari deskripsi
+  LEVEL_EXPLORER: { name: 'Eco Explorer', description: 'Mencapai level Eco Explorer.' },
+  LEVEL_HERO: { name: 'Planet Hero', description: 'Mencapai level Planet Hero.' },
 
   // Lencana Dampak
   AIR_50L: { name: 'Penghemat Air', description: 'Menghemat total 50 Liter air.' },
@@ -39,8 +40,9 @@ function checkAndAwardBadges(user) {
   if (user.totalPoints >= 500) addBadge('POIN_500');
 
   // --- Cek Lencana Level ---
-  if (user.level === '🌿 Eco Explorer') addBadge('LEVEL_EXPLORER');
-  if (user.level === '🌎 Planet Hero') addBadge('LEVEL_HERO');
+  // Menghapus emoji dari string perbandingan
+  if (user.level === 'Eco Explorer') addBadge('LEVEL_EXPLORER');
+  if (user.level === 'Planet Hero') addBadge('LEVEL_HERO');
 
   // --- Cek Lencana Dampak ---
   if (user.totalWater >= 50) addBadge('AIR_50L');
