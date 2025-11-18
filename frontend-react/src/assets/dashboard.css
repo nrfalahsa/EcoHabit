@@ -569,9 +569,25 @@
 /* ========================================= */
 /* BADGE STYLES */
 /* ========================================= */
-.badge-grid { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
-.badge-item { position: relative; width: 60px; height: 60px; cursor: help; transition: transform 0.3s ease; }
+.badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); flex-wrap: wrap; gap: 1rem; justify-content: center; }
+.badge-item { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px;position: relative; width: 60px; height: 60px; cursor: help; transition: transform 0.3s ease; }
 .badge-item:hover { transform: scale(1.1); }
+.badge-image {
+  width: 100px; /* Sesuaikan ukuran yang diinginkan */
+  height: 100px;
+  margin-bottom: 0px;
+  transition: transform 0.2s;
+}
+
+/* Efek grayscale untuk lencana yang belum didapat (opsional) */
+.badge-item:not(.unlocked) .badge-image {
+  filter: grayscale(100%);
+  opacity: 0.5;
+}
+
+.badge-item.unlocked .badge-image:hover {
+  transform: scale(1.1);
+}
 
 .badge-icon {
   font-size: 3rem;

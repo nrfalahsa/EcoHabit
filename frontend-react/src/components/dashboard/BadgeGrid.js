@@ -1,22 +1,22 @@
 // src/components/dashboard/BadgeGrid.js
 import React from 'react';
 
-// Konstanta dari dashboard.js
+// Konstanta lencana (ikon emoji dihapus karena akan diganti gambar)
 const allBadgesDefinition = {
   // Poin
-  'POIN_1': { name: 'Poin Pertama', icon: '✨' },
-  'POIN_100': { name: 'Kolektor Poin', icon: '💰' },
-  'POIN_500': { name: 'Master Poin', icon: '👑' },
+  'POIN_1': { name: 'Poin-Pertama' },
+  'POIN_100': { name: 'Kolektor-Poin' },
+  'POIN_500': { name: 'Master-Poin' },
   // Level
-  'LEVEL_EXPLORER': { name: 'Eco Explorer', icon: '🌿' },
-  'LEVEL_HERO': { name: 'Planet Hero', icon: '🌎' },
+  'LEVEL_EXPLORER': { name: 'Eco-Explorer' },
+  'LEVEL_HERO': { name: 'Planet-Hero' },
   // Dampak
-  'AIR_50L': { name: 'Penghemat Air', icon: '💧' },
-  'AIR_200L': { name: 'Pahlawan Air', icon: '🌊' },
-  'CO2_10KG': { name: 'Penyerap Karbon', icon: '💨' },
-  'CO2_50KG': { name: 'Pejuang Iklim', icon: '🌳' },
-  'PLASTIK_100G': { name: 'Anti-Plastik', icon: '♻️' },
-  'PLASTIK_500G': { name: 'Bebas Plastik', icon: '🚫' },
+  'AIR_50L': { name: 'Penghemat-Air' },
+  'AIR_200L': { name: 'Pahlawan-Air' },
+  'CO2_10KG': { name: 'Penyerap-Karbon' },
+  'CO2_50KG': { name: 'Pejuang-Iklim' },
+  'PLASTIK_100G': { name: 'Anti-Plastik' },
+  'PLASTIK_500G': { name: 'Bebas-Plastik' },
 };
 
 function BadgeGrid({ userBadges = [] }) {
@@ -26,9 +26,18 @@ function BadgeGrid({ userBadges = [] }) {
       <div className="badge-grid" id="badgeGrid">
         {Object.entries(allBadgesDefinition).map(([badgeId, badge]) => {
           const isUnlocked = userBadges.includes(badgeId);
+          
+          // Membangun path gambar: /lencana/Nama Lencana.png
+          const imagePath = `/lencana/${badge.name}.png`;
+
           return (
             <div key={badgeId} className={`badge-item ${isUnlocked ? 'unlocked' : ''}`}>
-              <div className="badge-icon">{badge.icon}</div>
+              {/* Mengganti div badge-icon dengan tag img */}
+              <img 
+                src={imagePath} 
+                alt={badge.name} 
+                className="badge-image"
+              />
               <div className="badge-tooltip">
                 <strong>{badge.name}</strong>
               </div>
