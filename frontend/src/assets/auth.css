@@ -1,0 +1,270 @@
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1.5rem 0;
+  background-color: var(--bg-color); 
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-card {
+  background: var(--bg-color-card, white); 
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--shadow-color, rgba(0, 0, 0, 0.05)); 
+  border: 1px solid var(--border-color, #e9ecef); 
+  width: 90%;
+  max-width: 450px;
+  animation: slideInUp 0.5s ease-out;
+}
+
+.auth-logo { 
+  display: block; 
+  max-width: 120px;
+  height: auto;
+  margin: 0 auto 1.5rem auto;
+}
+
+.auth-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary, #4CAF50); 
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--text-color-secondary, #6c757d); 
+  font-size: 1rem;
+}
+
+.form-group {
+  position: relative; 
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  position: absolute;
+  top: 0.75rem; 
+  left: 1rem;
+  font-weight: 500;
+  color: var(--text-color-secondary, #6c757d); 
+  pointer-events: none; 
+  transition: all 0.2s ease;
+  background-color: var(--bg-color-field, #fff); 
+  padding: 0 4px;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.form-input {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-color); 
+  background-color: var(--bg-color-field, #fff); 
+  border: 1px solid var(--border-color-input, #ced4da); 
+  border-radius: 8px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-primary, #4CAF50); 
+  box-shadow: 0 0 0 3px var(--shadow-color-focus, rgba(76, 175, 80, 0.15)); 
+}
+
+.form-input:focus + .form-label,
+.form-input:not(:placeholder-shown) + .form-label {
+  top: -0.7rem;
+  left: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-primary, #4CAF50); 
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%; 
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-color-secondary, #6c757d); 
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.5rem;
+  z-index: 2; 
+}
+
+.password-toggle-btn:hover {
+  color: var(--color-primary, #4CAF50); 
+}
+
+.form-input.input-password {
+  padding-right: 4.5rem; 
+}
+
+
+/* ========================================= */
+/* BUTTON & SPINNER */
+/* ========================================= */
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite;
+}
+
+.btn {
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  text-decoration: none;
+  min-height: calc(0.875rem * 2 + 1rem * 1.5 + 2px); 
+}
+
+.btn:hover {
+  background-color: #45a049;
+}
+
+.btn:disabled {
+  background-color: #adb5bd;
+  cursor: not-allowed;
+}
+
+/* ========================================= */
+/* LAINNYA */
+/* ========================================= */
+
+.auth-links {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-color-secondary, #6c757d); 
+}
+
+.auth-links.split {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.auth-links.text-center {
+  text-align: center;
+}
+
+.auth-link {
+  color: var(--color-primary, #4CAF50); 
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.form-error {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+#toast-container {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.toast {
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  color: white;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.4s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toast.toast-success {
+  background-color: #4CAF50;
+}
+
+.toast.toast-error {
+  background-color: #dc3545;
+}
+
+/* ========================================= */
+/* DARK MODE OVERRIDES */
+/* ========================================= */
+[data-theme="dark"] {
+  --bg-color-card: #28303a; 
+  --bg-color-field: #3b424d; 
+  --text-color-secondary: #b0bec5; 
+  --border-color: #495057; 
+  --border-color-input: #495057; 
+  --shadow-color: rgba(0, 0, 0, 0.4); 
+  --shadow-color-focus: rgba(105, 240, 174, 0.3); 
+  --color-primary: #69f0ae; 
+}
+
+[data-theme="dark"] .btn:hover {
+    background-color: #00c853; 
+}
+
+
+/* ========================================= */
+/* PERBAIKAN AUTOFIILL BROWSER */
+/* ========================================= */
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover,
+.form-input:-webkit-autofill:focus,
+.form-input:-webkit-autofill:active {
+    box-shadow: 0 0 0px 1000px var(--bg-color-field, #fff) inset !important;   
+    -webkit-text-fill-color: var(--text-color) !important;  
+    border-color: var(--border-color-input, #ced4da);
+}
