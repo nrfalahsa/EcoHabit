@@ -476,6 +476,10 @@
   transform: scale(1.02);
 }
 
+.leaderboard-item img:hover {
+  transform: scale(1.5);
+}
+
 .leaderboard-rank { font-size: 1.25rem; font-weight: 700; color: #4CAF50; min-width: 20px; text-align: right; }
 .leaderboard-item:nth-child(1) .leaderboard-rank { color: #ffd700; }
 .leaderboard-item:nth-child(2) .leaderboard-rank { color: #c0c0c0; }
@@ -547,7 +551,7 @@
 .btn-filter:hover {
   background-color: #e9ecef;
   transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  border-color: #4CAF50;
 }
 
 .btn-filter.active {
@@ -714,7 +718,6 @@
 .dropdown-item.danger { color: #dc3545; }
 
 /* Dark Mode Overrides */
-
 [data-theme="dark"] .dashboard-header,
 [data-theme="dark"] .card,
 [data-theme="dark"] .dropdown-menu {
@@ -827,7 +830,7 @@
   background-color: #2d3436;
 }
 [data-theme="dark"] .btn-filter.active {
-  background-color: #3b4446;
+  background-color: #4CAF50; 
   color: white;
   border-color: #4CAF50;
 }
