@@ -29,6 +29,13 @@
   animation: slideInUp 0.5s ease-out;
 }
 
+.auth-logo { 
+  display: block; 
+  max-width: 120px;
+  height: auto;
+  margin: 0 auto 1.5rem auto;
+}
+
 .auth-title {
   font-size: 2rem;
   font-weight: 700;
