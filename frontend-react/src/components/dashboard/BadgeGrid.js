@@ -22,7 +22,11 @@ const allBadgesDefinition = {
 function BadgeGrid({ userBadges = [] }) {
   return (
     <div className="card">
-      <h2 className="card-title">🏆 Lencana Saya</h2>
+      {/* Mengganti 🏆 dengan ikon Font Awesome fa-award */}
+      <h2 className="card-title">
+        <i className="fa-solid fa-award" style={{ color: '#FFD700', marginRight: '0.5rem' }}></i> 
+        Lencana Saya
+      </h2>
       <div className="badge-grid" id="badgeGrid">
         {Object.entries(allBadgesDefinition).map(([badgeId, badge]) => {
           const isUnlocked = userBadges.includes(badgeId);

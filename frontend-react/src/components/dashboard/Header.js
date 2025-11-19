@@ -8,6 +8,27 @@ import Modal from '../common/Modal';
 // Pastikan file CSS ini ada (seperti yang dibuat sebelumnya)
 import '../../assets/header.css'; 
 
+// Fungsi pembantu untuk membuat ikon Font Awesome
+const FaIcon = ({ iconName, style = {} }) => (
+  // START PERBAIKAN ALIGNMENT VERTICAL: Gunakan span wrapper dengan flexbox
+  <span 
+    className="fa-icon-wrapper" 
+    style={{
+      width: '1.25rem', // Ukuran yang konsisten
+      height: '1.25rem',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: '0.75rem',
+      verticalAlign: 'middle', // Fallback alignment
+      ...style
+    }}
+  >
+    <i className={`fa-solid ${iconName}`}></i>
+  </span>
+  // END PERBAIKAN ALIGNMENT VERTICAL
+);
+
 function Header() {
   const { user, logout, theme, toggleTheme, updateUserState } = useContext(AuthContext);
   const { showToast } = useToast();
@@ -63,15 +84,11 @@ function Header() {
     setIsLoading(false);
   };
 
-  // --- LOGIKA AVATAR (DIPERBAIKI) ---
-  // Mengambil foto profil dengan prioritas: State -> LocalStorage -> Default
+  // --- LOGIKA AVATAR ---
   const getAvatarSrc = () => {
-    // 1. Cek di state Context (paling update)
     if (user && user.profilePicture) {
       return user.profilePicture;
     }
-    
-    // 2. Fallback ke LocalStorage (jika state belum siap sesaat setelah login)
     try {
       const storedUser = JSON.parse(localStorage.getItem('ecohabit_user'));
       if (storedUser && storedUser.profilePicture) {
@@ -80,8 +97,6 @@ function Header() {
     } catch (e) {
       console.error("Error parsing stored user for avatar", e);
     }
-
-    // 3. Default Avatar (UI Avatars)
     const name = user?.name || 'User';
     return `https://ui-avatars.com/api/?name=${name}&background=4CAF50&color=fff`;
   };
@@ -89,14 +104,11 @@ function Header() {
   const avatarSrc = getAvatarSrc();
 
   // --- HANDLERS ---
-
-  // Handler Konfirmasi Logout
   const handleConfirmLogout = () => {
     logout(); 
     closeModal();
   };
 
-  // Handler Update Nama/Email
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -120,7 +132,6 @@ function Header() {
     }
   };
 
-  // Handler Ganti Password
   const handleChangePassword = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -141,7 +152,6 @@ function Header() {
     }
   };
 
-  // Handler Upload Foto
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -150,10 +160,8 @@ function Header() {
     try {
       showToast('Mengupload gambar...', 'info');
       
-      // 1. Upload ke Catbox
       const imageUrl = await uploadToCatbox(file);
       
-      // 2. Simpan URL ke Backend Database
       const updatedUser = await authFetch('/users/profile', {
         method: 'PUT',
         body: JSON.stringify({ profilePicture: imageUrl })
@@ -193,39 +201,43 @@ function Header() {
                 {/* MENU UTAMA */}
                 {activeSubmenu !== 'settings' && (
                   <>
+                    {/* Menggunakan has-submenu untuk item Pengaturan agar panah tetap di kanan */}
                     <div className="dropdown-item has-submenu" onClick={() => setActiveSubmenu('settings')}>
-                      ⚙️ Pengaturan <span>›</span>
+                      <FaIcon iconName="fa-gear" /> Pengaturan <i className="fa-solid fa-chevron-right fa-arrow-right-custom"></i>
                     </div>
                     <div className="dropdown-item" onClick={toggleTheme}>
-                      {theme === 'light' ? '🌙 Mode Gelap' : '☀️ Mode Terang'}
+                      {theme === 'light' ? 
+                        <><FaIcon iconName="fa-moon" /> Mode Gelap</> : 
+                        <><FaIcon iconName="fa-sun" style={{ color: '#FFD700' }} /> Mode Terang</>}
                     </div>
                     <div className="dropdown-divider"></div>
                     {/* Memicu Modal Konfirmasi Logout */}
                     <div className="dropdown-item danger" onClick={() => openModal('logout')}>
-                      🚪 Logout
+                      <FaIcon iconName="fa-right-from-bracket" /> Logout
                     </div>
                   </>
                 )}
 
                 {/* SUBMENU PENGATURAN */}
                 {activeSubmenu === 'settings' && (
-                  <>
+                  // WRAPPER ANIMASI
+                  <div className="submenu-slide"> 
                     <div className="dropdown-header" onClick={() => setActiveSubmenu(null)}>
-                      <span>‹</span> Kembali
+                      <i className="fa-solid fa-chevron-left" style={{ marginRight: '0.5rem', verticalAlign: 'middle' }}></i> Kembali
                     </div>
                     <div className="dropdown-item" onClick={() => openModal('password')}>
-                      🔑 Ganti Sandi
+                      <FaIcon iconName="fa-key" /> Ganti Sandi
                     </div>
                     <div className="dropdown-item" onClick={() => openModal('name')}>
-                      📝 Ganti Nama
+                      <FaIcon iconName="fa-pen-to-square" /> Ganti Nama
                     </div>
                     <div className="dropdown-item" onClick={() => openModal('email')}>
-                      📧 Ganti Email
+                      <FaIcon iconName="fa-envelope" /> Ganti Email
                     </div>
                     <div className="dropdown-item" onClick={() => openModal('photo')}>
-                      🖼️ Ganti Foto Profil
+                      <FaIcon iconName="fa-image" /> Ganti Foto Profil
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             )}

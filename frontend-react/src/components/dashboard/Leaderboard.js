@@ -4,7 +4,11 @@ import React from 'react';
 function Leaderboard({ users = [] }) {
   return (
     <div className="card">
-      <h2 className="card-title">🏆 Papan Peringkat</h2>
+      {/* Mengganti 🏆 dengan ikon Font Awesome fa-trophy */}
+      <h2 className="card-title">
+        <i className="fa-solid fa-trophy" style={{ color: '#ffd700', marginRight: '0.5rem' }}></i> 
+        Papan Peringkat
+      </h2>
       <div className="leaderboard">
         <ol id="leaderboardList">
           {users.length > 0 ? (

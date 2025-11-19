@@ -474,7 +474,18 @@
 .impact-item { display: flex; align-items: center; gap: 1rem; transition: transform 0.3s ease; }
 .impact-item:hover { transform: translateX(5px); } /* Animasi interaktif */
 
-.impact-icon { font-size: 2rem; line-height: 1; flex-shrink: 0; }
+.impact-icon { 
+  /* START: Perbaikan Alignment dan Ukuran */
+  font-size: 2rem; 
+  line-height: 1; 
+  flex-shrink: 0; 
+  width: 2rem; 
+  height: 2rem; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  /* END: Perbaikan Alignment dan Ukuran */
+}
 .impact-text { display: flex; flex-direction: column; }
 .impact-value { font-size: 1.25rem; font-weight: 600; color: #4CAF50; }
 .impact-label { font-size: 0.9rem; color: #6c757d; transition: color 0.3s; }
@@ -695,16 +706,29 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* START: Tambahan Animasi Submenu Slide (Menggunakan slideDown) */
+.submenu-slide {
+  width: 100%;
+  height: 100%;
+  /* Menggunakan keyframes slideDown yang sama */
+  animation: slideDown 0.2s ease forwards; 
+}
+/* END: Tambahan Animasi Submenu Slide */
+
 .dropdown-item {
   padding: 0.75rem 1rem;
   color: #495057;
   cursor: pointer;
   transition: background 0.2s;
   display: flex;
-  justify-content: space-between;
+  /* START Perubahan: Mengubah justify-content menjadi flex-start untuk ratakiri */
+  justify-content: flex-start;
+  gap: 0.5rem; /* Menambahkan jarak antar ikon dan teks */
+  /* END Perubahan */
   align-items: center;
   font-size: 0.95rem;
 }
+
 .dropdown-item:hover { background-color: #f8f9fa; color: #212529; }
 .dropdown-item.danger { color: #dc3545; }
 .dropdown-item.danger:hover { background-color: #fff5f5; }
@@ -720,6 +744,49 @@
 }
 .dropdown-header:hover { background-color: #f8f9fa; color: #343a40; }
 .dropdown-divider { height: 1px; background-color: #f1f3f5; margin: 0.25rem 0; }
+
+/* ... CSS di atas tetap sama ... */
+
+/* START KOREKSI ALIGNMENT Ikon Font Awesome (Berlaku untuk Ikon Rata Kiri) */
+.fa-icon-wrapper i.fa-solid {
+  /* Ini mengatasi masalah baseline di beberapa browser/ikon */
+  vertical-align: 0; 
+}
+/* END KOREKSI ALIGNMENT Ikon Font Awesome */
+
+/* Memperbaiki item "Pengaturan" agar panah tetap di kanan */
+.dropdown-item.has-submenu {
+    justify-content: space-between; /* Ini sudah memastikan rata kanan */
+    gap: 1; /* Reset gap untuk space-between */
+}
+
+/* START PERUBAHAN: Targetkan Ikon Panah Kanan Baru */
+.dropdown-item.has-submenu .fa-arrow-right-custom {
+    /* Mendorong ikon ke kanan dan membuatnya besar */
+    font-size: 1.25rem; /* Membuat ikon lebih besar */
+    font-weight: 700;  /* Membuat ikon lebih tebal */
+    
+    /* Menggunakan margin-left auto untuk memastikan rata kanan dalam flex container */
+    margin-left: auto;
+    
+    /* Untuk animasi hover */
+    transition: transform 0.2s ease;
+    color: #495057; /* Warna default */
+}
+
+.dropdown-item.has-submenu:hover .fa-arrow-right-custom {
+    transform: translateX(3px); /* Efek geser ringan saat hover */
+}
+
+/* Hapus atau modifikasi rule span lama (opsional, tergantung pada bagaimana Anda membuang CSS lama) */
+.dropdown-item.has-submenu span {
+    /* Style ini sekarang digantikan oleh .fa-arrow-right-custom */
+    font-size: 1.1em; /* Mempertahankan ukuran font yang sebelumnya ada di span */
+}
+/* END PERUBAHAN */
+
+.dropdown-item.danger { color: #dc3545; }
+/* ... CSS di bawah tetap sama ... */
 
 
 /* ========================================= */

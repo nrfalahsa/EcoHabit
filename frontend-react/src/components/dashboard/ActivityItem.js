@@ -37,7 +37,9 @@ function ActivityItem({ activity, isCompleted, onComplete }) {
         <button className="activity-info-btn" onClick={(e) => {
           e.stopPropagation();
           setIsModalOpen(true);
-        }}>💡</button>
+        }}>
+          <i className="fa-solid fa-lightbulb" style={{ color: '#ffff00' }}></i>
+        </button>
       </div>
 
       {/* Modal Edukasi */}

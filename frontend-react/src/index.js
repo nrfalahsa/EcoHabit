@@ -5,7 +5,7 @@ import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  // Menghapus <React.StrictMode> untuk mengatasi masalah hook
+  // yang tersembunyi dalam mode pengembangan.
+  <App />
 );

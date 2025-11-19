@@ -23,7 +23,9 @@ function ImpactCard({ savings }) {
       <h2 className="card-title">Total Dampak Kamu</h2>
       <div className="impact-stats">
         <div className="impact-item">
-          <span className="impact-icon">💨</span>
+          <span className="impact-icon">
+            <i className="fa-solid fa-cloud" style={{ color: '#87CEEB' }}></i>
+          </span>
           <div className="impact-text">
             <span className="impact-value" id="totalCo2">{savings.total_co2_kg || 0} kg</span>
             <span className="impact-label">CO2 Ditekan</span>
@@ -31,7 +33,9 @@ function ImpactCard({ savings }) {
           </div>
         </div>
         <div className="impact-item">
-          <span className="impact-icon">💧</span>
+          <span className="impact-icon">
+            <i className="fa-solid fa-tint" style={{ color: '#007bff' }}></i>
+          </span>
           <div className="impact-text">
             <span className="impact-value" id="totalWater">{savings.total_water_liter || 0} L</span>
             <span className="impact-label">Air Dihemat</span>
@@ -39,7 +43,9 @@ function ImpactCard({ savings }) {
           </div>
         </div>
         <div className="impact-item">
-          <span className="impact-icon">♻️</span>
+          <span className="impact-icon">
+            <i className="fa-solid fa-recycle" style={{ color: '#28a745' }}></i>
+          </span>
           <div className="impact-text">
             <span className="impact-value" id="totalPlastic">{savings.total_plastic_gram || 0} gr</span>
             <span className="impact-label">Plastik Dikurangi</span>
