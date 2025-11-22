@@ -1,33 +1,17 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+const { connectDB } = require('./config/db');
+const corsOptions = require('./config/cors');
 
 const app = express();
-
-// Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
+app.set('json spaces', 2);
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ecohabit';
-
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ Terhubung ke MongoDB'))
-.catch(err => {
-  console.error('❌ Koneksi MongoDB gagal:', err.message);
-  console.log('📝 Menggunakan MongoDB lokal...');
-  
-  mongoose.connect('mongodb://localhost:27017/ecohabit', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log('✅ Terhubung ke MongoDB lokal'))
-  .catch(err => console.error('❌ Koneksi MongoDB lokal juga gagal:', err.message));
-});
+// Connect to MongoDB
+connectDB();
 
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -67,6 +51,10 @@ app.get('/api/health', (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server berjalan di port ${PORT}`);
-  console.log(`🌐 URL: http://localhost:${PORT}`);
+});
+
+process.on('SIGINT', async () => {
+  await mongoose.connection.close();
+  process.exit(0);
 });
 
