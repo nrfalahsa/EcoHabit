@@ -125,7 +125,7 @@ router.post('/forgot', async (req, res) => {
 
     await user.save();
 
-    const resetUrl = `${process.env.FRONTEND_URL}/reset.html?token=${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/reset?token=${resetToken}`;
     const message = `
       <h2>Reset Password EcoHabit</h2>
       <p>Anda menerima email ini karena Anda (atau orang lain) meminta reset password untuk akun EcoHabit Anda.</p>

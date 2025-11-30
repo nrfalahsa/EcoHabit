@@ -51,28 +51,28 @@ function ResetPasswordPage() {
     <AuthCard subtitle="Reset Password Baru">
       <form id="resetForm" onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="password" className="form-label">Password Baru</label>
           <input 
             type="password" 
             id="password" 
             className="form-input" 
-            placeholder="Minimal 6 karakter"
+            placeholder=" "
             value={password}
             onChange={(e) => setPassword(e.target.value)} 
             required 
           />
+          <label htmlFor="password" className="form-label">Password Baru</label>
         </div>
         <div className="form-group">
-          <label htmlFor="passwordConfirm" className="form-label">Konfirmasi Password Baru</label>
           <input 
             type="password" 
             id="passwordConfirm" 
             className="form-input" 
-            placeholder="Ulangi password baru"
+            placeholder=" "
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
             required 
           />
+          <label htmlFor="passwordConfirm" className="form-label">Konfirmasi Password Baru</label>
         </div>
         <button type="submit" className="btn" disabled={isLoading}>
           {isLoading ? 'Resetting...' : 'Reset Password'}
