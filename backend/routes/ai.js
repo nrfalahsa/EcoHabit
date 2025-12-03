@@ -17,8 +17,10 @@ router.post('/ask', async (req, res) => {
       return res.status(400).json({ message: 'Pertanyaan tidak boleh kosong' });
     }
 
-    const prompt = `Anda adalah "Asisten Eco" yang ramah dan edukatif. Jawab pertanyaan pengguna tentang lingkungan atau kebiasaan ramah lingkungan berikut ini dengan jelas dan singkat (maksimal 3-4 kalimat): "${question}"`;
-    
+    const userName = req.user.name;
+
+    const prompt = `Kamu adalah "Asisten Eco" yang ramah dan edukatif. Jawab pertanyaan dari ${userName}. Sapa ${userName} di awal jawabanmu (contoh: "Halo ${userName}"). Pastikan untuk menggunakan kata "kamu" saat merujuk kepada pengguna dan menjaga jawaban tetap jelas dan singkat (maksimal 3-4 kalimat): "${question}"`;
+
     const answer = await runGemini(prompt);
     res.json({ answer });
 
@@ -37,8 +39,18 @@ router.post('/suggest', async (req, res) => {
     const { completedActivities } = req.body;
     const completedList = completedActivities.join(', ');
 
-    const prompt = `Pengguna ini sudah sering melakukan aktivitas berikut: "${completedList}". Berikan 2 saran aktivitas ramah lingkungan LAIN (yang tidak ada di daftar itu) yang mungkin dia sukai, beserta alasan singkat (1 kalimat) kenapa aktivitas itu relevan. Format jawaban sebagai bullet point (gunakan tanda -).`;
-    
+    const userName = req.user.name;
+
+    let prompt;
+
+    if (completedActivities && completedActivities.length > 0) {
+        prompt = `Sapa ${userName} (contoh: "Halo ${userName}"). ${userName} sudah sering melakukan aktivitas berikut: "${completedList}". Berikan 2 saran aktivitas ramah lingkungan LAIN (yang tidak ada di daftar itu) yang mungkin ${userName} sukai, beserta alasan singkat (1 kalimat) kenapa aktivitas itu relevan.`;
+    } else {
+        prompt = `Sapa ${userName} (contoh: "Halo ${userName}"). Berikan 2 saran aktivitas ramah lingkungan yang mungkin ${userName} sukai, beserta alasan singkat (1 kalimat) kenapa aktivitas itu relevan.`;
+    }
+
+    const finalPrompt = `${prompt} Jawab sebagai "Asisten Eco" yang ramah. Format jawaban sebagai bullet point (gunakan tanda -).`;
+
     const suggestion = await runGemini(prompt);
     res.json({ suggestion });
 
